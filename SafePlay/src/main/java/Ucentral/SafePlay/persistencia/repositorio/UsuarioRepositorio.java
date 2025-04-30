@@ -1,8 +1,10 @@
 package Ucentral.SafePlay.persistencia.repositorio;
 
 import Ucentral.SafePlay.persistencia.entidades.Usuario;
-import org.springframework.data.repository.CrudRepository;
+import org.springframework.data.jpa.repository.JpaRepository;
 
-public interface UsuarioRepositorio  extends CrudRepository<Usuario, String> {
+import java.util.Optional;
 
+public interface UsuarioRepositorio extends JpaRepository<Usuario, String> {
+    Optional<Usuario> findByUsuario(String usuario);
 }
