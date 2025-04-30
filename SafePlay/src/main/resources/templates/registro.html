@@ -47,14 +47,14 @@
             font-weight: 500;
         }
 
-        .form-control {
+        .form-control, .form-select {
             border: 1px solid #ccc;
             border-radius: 5px;
             padding: 10px;
             transition: border-color 0.3s ease;
         }
 
-        .form-control:focus {
+        .form-control:focus, .form-select:focus {
             border-color: #a3e635; /* Verde lima */
             box-shadow: 0 0 5px rgba(163, 230, 53, 0.5);
             outline: none;
@@ -160,6 +160,16 @@
             <label for="contrasena" class="form-label">Contraseña *</label>
             <input type="password" id="contrasena" class="form-control" required th:field="*{contrasena}" placeholder="Ingresa tu contraseña">
             <div class="error-message" th:if="${#fields.hasErrors('contrasena')}" th:errors="*{contrasena}"></div>
+        </div>
+        <!-- Rol -->
+        <div class="mb-3">
+            <label for="rol" class="form-label">Rol *</label>
+            <select id="rol" class="form-select" required th:field="*{rol}">
+                <option value="">Selecciona un rol</option>
+                <option value="JUGADOR">Jugador</option>
+                <option value="SUPERVISOR">Supervisor</option>
+            </select>
+            <div class="error-message" th:if="${#fields.hasErrors('rol')}" th:errors="*{rol}"></div>
         </div>
         <!-- Botón de enviar -->
         <div class="d-grid">
