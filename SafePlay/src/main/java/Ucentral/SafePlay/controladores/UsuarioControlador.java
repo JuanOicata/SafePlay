@@ -32,7 +32,7 @@ public class UsuarioControlador {
         return "registro";
     }
 
-    @PostMapping("/almacenar")
+    /*@PostMapping("/almacenar")
     public String registrarUsuario(@ModelAttribute("elusuario") Usuario usuario, BindingResult result, Model model) {
         // Verificar si hay errores de validación
         if (result.hasErrors()) {
@@ -49,10 +49,19 @@ public class UsuarioControlador {
             model.addAttribute("error", "Error al registrar usuario: " + e.getMessage());
             return "registro";
         }
+    }*/
+    @PostMapping("/almacenar")
+    public String almacenarUsuario(@ModelAttribute("elusuario")Usuario usuario, BindingResult result, Model model) {
+        if (result.hasErrors()) {
+            return "registro"; // Nombre de la plantilla HTML
+        }
+        usuarioServicio.guardarUsuario(usuario);
+        return "redirect:/";
     }
 
     @GetMapping("/registro-exitoso")
     public String mostrarRegistroExitoso() {
         return "registro-exitoso";
     }
+
 }
