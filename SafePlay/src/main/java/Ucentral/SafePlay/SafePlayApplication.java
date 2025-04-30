@@ -10,6 +10,5 @@ public class SafePlayApplication {
 		SpringApplication.run(SafePlayApplication.class, args);
 	}
 
-	//Prueba Commit
-	//si
+	//API CONECTADA
 }

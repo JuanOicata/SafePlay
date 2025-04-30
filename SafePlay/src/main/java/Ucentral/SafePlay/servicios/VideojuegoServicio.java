@@ -21,11 +21,10 @@ public class VideojuegoServicio {
             if (response.getStatusCode().is2xxSuccessful() && response.getBody() != null) {
                 return Arrays.asList(response.getBody());
             }
-            return Collections.emptyList(); // Devuelve lista vacía si la respuesta no es válida
+            return Collections.emptyList();
         } catch (Exception e) {
-            // Loggea el error si es necesario (puedes usar un logger como SLF4J)
             System.err.println("Error al obtener videojuegos: " + e.getMessage());
-            return Collections.emptyList(); // Manejo de errores
+            return Collections.emptyList();
         }
     }
 }

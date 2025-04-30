@@ -21,6 +21,14 @@
       height: 200px;
       object-fit: cover;
     }
+    .approved {
+      color: green;
+      font-weight: bold;
+    }
+    .not-approved {
+      color: red;
+      font-weight: bold;
+    }
   </style>
 </head>
 <body>
@@ -36,7 +44,29 @@
         <img src="/images/placeholder.jpg" class="card-img-top" alt="Imagen por defecto" th:if="${juego.thumbnail == null}"/>
         <div class="card-body">
           <h5 class="card-title" th:text="${juego.title}">Nombre del Juego</h5>
-          <p class="card-text">Lanzamiento: <span th:text="${juego.releaseDate}"></span></p>
+          <p class="card-text"><strong>Lanzamiento:</strong> <span th:text="${juego.releaseDate}"></span></p>
+          <p class="card-text"><strong>Descripción:</strong> <span th:text="${juego.shortDescription}"></span></p>
+          <p class="card-text"><strong>Género:</strong> <span th:text="${juego.genre}"></span></p>
+          <p class="card-text"><strong>Plataforma:</strong> <span th:text="${juego.platform}"></span></p>
+          <p class="card-text"><strong>Publicador:</strong> <span th:text="${juego.publisher}"></span></p>
+          <p class="card-text"><strong>Desarrollador:</strong> <span th:text="${juego.developer}"></span></p>
+          <p class="card-text">
+            <strong>Estado:</strong>
+            <span th:class="${juego.isApproved} ? 'approved' : 'not-approved'"
+                  th:text="${juego.isApproved} ? 'Apto' : 'No Apto'"></span>
+          </p>
+          <form th:action="@{/supervisor/aprobar}" method="post">
+            <input type="hidden" name="title" th:value="${juego.title}"/>
+            <div class="form-check mb-2">
+              <input type="radio" class="form-check-input" name="isApproved" id="apto_${juego.title}" value="true" th:checked="${juego.isApproved}"/>
+              <label class="form-check-label" for="apto_${juego.title}">Apto</label>
+            </div>
+            <div class="form-check mb-2">
+              <input type="radio" class="form-check-input" name="isApproved" id="noApto_${juego.title}" value="false" th:checked="${!juego.isApproved}"/>
+              <label class="form-check-label" for="noApto_${juego.title}">No Apto</label>
+            </div>
+            <button type="submit" class="btn btn-primary btn-sm">Actualizar Estado</button>
+          </form>
         </div>
       </div>
     </div>
