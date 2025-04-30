@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Registro Exitoso - SafePlay</title>
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <!-- Google Fonts para tipografía -->
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            background: linear-gradient(rgba(26, 42, 68, 0.8), rgba(26, 42, 68, 0.8)), url('https://images.unsplash.com/photo-1600585154340-be6161a56a0c?ixlib=rb-4.0.3&auto=format&fit=crop&w=1350&q=80') no-repeat center center fixed;
+            background-size: cover;
+            color: #333;
+            font-family: 'Roboto', sans-serif;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .success-container {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 2rem;
+            border-radius: 15px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+            max-width: 600px;
+            width: 100%;
+            text-align: center;
+        }
+
+        h1 {
+            color: #1a2a44; /* Azul oscuro */
+            font-weight: 700;
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .subtitle {
+            color: #666;
+            font-size: 1.1rem;
+            margin-bottom: 2rem;
+        }
+
+        .success-icon {
+            font-size: 5rem;
+            color: #a3e635; /* Verde lima */
+            margin-bottom: 1rem;
+        }
+
+        .btn-primary {
+            background-color: #1a2a44; /* Azul oscuro */
+            border: none;
+            padding: 10px 30px;
+            font-weight: bold;
+            color: #fff;
+            border-radius: 25px;
+            transition: background-color 0.3s ease;
+        }
+
+        .btn-primary:hover {
+            background-color: #a3e635; /* Verde lima */
+            color: #1a2a44;
+        }
+    </style>
+</head>
+<body>
+<div class="success-container">
+    <div class="success-icon">✓</div>
+    <h1>¡Registro Exitoso!</h1>
+    <p class="subtitle">Tu cuenta ha sido creada correctamente. Ahora puedes disfrutar de todos los beneficios de SafePlay.</p>
+    <p>En breve recibirás un correo electrónico de confirmación.</p>
+    <div class="mt-4">
+        <a th:href="@{/}" class="btn btn-primary">Ir a la página principal</a>
+    </div>
+</div>
+
+<!-- Bootstrap JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
