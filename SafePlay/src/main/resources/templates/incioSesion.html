@@ -1,10 +1,147 @@
 <!DOCTYPE html>
-<html lang="en">
+<html xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
+    <title>Iniciar Sesión - SafePlay</title>
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <!-- Google Fonts para tipografía -->
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            background: linear-gradient(rgba(26, 42, 68, 0.8), rgba(26, 42, 68, 0.8)), url('https://images.unsplash.com/photo-1600585154340-be6161a56a0c?ixlib=rb-4.0.3&auto=format&fit=crop&w=1350&q=80') no-repeat center center fixed;
+            background-size: cover;
+            color: #333;
+            font-family: 'Roboto', sans-serif;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .form-container {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 2rem;
+            border-radius: 15px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+            max-width: 500px;
+            width: 100%;
+        }
+
+        h1 {
+            color: #1a2a44; /* Azul oscuro */
+            font-weight: 700;
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .subtitle {
+            color: #666;
+            font-size: 1.1rem;
+            margin-bottom: 2rem;
+        }
+
+        .form-label {
+            color: #1a2a44;
+            font-weight: 500;
+        }
+
+        .form-control {
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            padding: 10px;
+            transition: border-color 0.3s ease;
+        }
+
+        .form-control:focus {
+            border-color: #a3e635; /* Verde lima */
+            box-shadow: 0 0 5px rgba(163, 230, 53, 0.5);
+            outline: none;
+        }
+
+        .btn-submit {
+            background-color: #1a2a44; /* Azul oscuro */
+            border: none;
+            padding: 10px 30px;
+            font-weight: bold;
+            color: #fff;
+            border-radius: 25px;
+            transition: background-color 0.3s ease;
+            width: 100%;
+        }
+
+        .btn-submit:hover {
+            background-color: #a3e635; /* Verde lima */
+            color: #1a2a44;
+        }
+
+        .btn-back {
+            color: #a3e635;
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+
+        .btn-back:hover {
+            color: #ff9500;
+            text-decoration: underline;
+        }
+
+        .register-link {
+            color: #a3e635;
+            text-decoration: none;
+            font-size: 0.9rem;
+            text-align: center;
+            margin-top: 1rem;
+        }
+
+        .register-link:hover {
+            text-decoration: underline;
+        }
+
+        .error-message {
+            color: #ff4444;
+            font-size: 0.9rem;
+            margin-top: 0.25rem;
+        }
+
+        .alert {
+            margin-bottom: 20px;
+            border-radius: 5px;
+        }
+    </style>
 </head>
 <body>
+<div class="form-container">
+    <div class="text-center mb-3">
+        <a th:href="@{/}" class="btn-back">← Volver a la página principal</a>
+    </div>
+    <h1>Iniciar Sesión</h1>
+    <p class="subtitle">Accede a tu cuenta para gestionar tus controles y estadísticas de juego.</p>
 
+    <!-- Mensaje de error general -->
+    <div class="alert alert-danger" th:if="${error}" th:text="${error}"></div>
+
+    <form th:action="@{/login}" method="post">
+        <!-- Usuario -->
+        <div class="mb-3">
+            <label for="username" class="form-label">Usuario *</label>
+            <input type="text" id="username" name="username" class="form-control" required placeholder="Ingresa tu nombre de usuario">
+        </div>
+        <!-- Contraseña -->
+        <div class="mb-3">
+            <label for="password" class="form-label">Contraseña *</label>
+            <input type="password" id="password" name="password" class="form-control" required placeholder="Ingresa tu contraseña">
+        </div>
+        <!-- Botón de enviar -->
+        <div class="d-grid">
+            <button type="submit" class="btn btn-submit">Iniciar Sesión</button>
+        </div>
+        <p class="register-link">¿No tienes cuenta? <a th:href="@{/registro}">Regístrate aquí</a></p>
+    </form>
+</div>
+
+<!-- Bootstrap JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
