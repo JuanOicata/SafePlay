@@ -1,10 +1,143 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
-    <title>Jugador</title>
+    <meta charset="UTF-8">
+    <title>Jugador - SafePlay</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            background: linear-gradient(135deg, #1e1e2f 0%, #2a2a4a 100%); /* Fondo degradado inspirado en gaming */
+            font-family: 'Roboto', sans-serif;
+            color: #ffffff;
+            min-height: 100vh;
+            padding: 2rem;
+        }
+        .container {
+            background: rgba(255, 255, 255, 0.1); /* Fondo semitransparente */
+            border-radius: 15px;
+            padding: 2rem;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+        }
+        .welcome-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+        .welcome-header h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: #00ffcc; /* Color neón para destacar */
+            text-shadow: 0 0 10px rgba(0, 255, 204, 0.5);
+        }
+        .card {
+            background: #2a2a4a; /* Fondo oscuro para las tarjetas */
+            border: none;
+            border-radius: 12px;
+            overflow: hidden;
+            transition: transform 0.3s;
+            margin-bottom: 1.5rem;
+        }
+        .card:hover {
+            transform: translateY(-5px); /* Efecto de elevación al pasar el mouse */
+            box-shadow: 0 8px 20px rgba(0, 255, 204, 0.2);
+        }
+        .card-img-top {
+            height: 200px;
+            object-fit: cover;
+        }
+        .card-body {
+            padding: 1.5rem;
+            color: #e0e0e0;
+        }
+        .card-title {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: #00ffcc;
+        }
+        .btn-primary {
+            background-color: #00ffcc;
+            border-color: #00ffcc;
+            color: #1e1e2f;
+            font-weight: 700;
+            transition: background-color 0.3s;
+        }
+        .btn-primary:hover {
+            background-color: #00ccaa;
+            border-color: #00ccaa;
+        }
+        .placeholder-text {
+            color: #a0a0a0;
+            font-style: italic;
+        }
+    </style>
 </head>
 <body>
-<h1 th:text="'Bienvenido, ' + ${usuario.nombre} + ' (Jugador)'"></h1>
-<p>Aquí puedes acceder a tus estadísticas de juego.</p>
+
+<div class="container">
+    <!-- Encabezado de bienvenida -->
+    <div class="welcome-header">
+        <h1>Bienvenido, <span th:text="${usuario.nombre}">Jugador</span>!</h1>
+        <p>Explora los videojuegos aprobados y disfruta de la experiencia SafePlay.</p>
+    </div>
+
+    <!-- Sección de juegos destacados (placeholder) -->
+    <h2 class="mb-4">Juegos Disponibles</h2>
+    <div class="row">
+        <!-- Ejemplo de tarjeta de juego (repetir para futuros juegos) -->
+        <div class="col-md-4">
+            <div class="card">
+                <img src="/images/placeholder.jpg" class="card-img-top" alt="Imagen de juego">
+                <div class="card-body">
+                    <h5 class="card-title">Nombre del Juego</h5>
+                    <p class="card-text placeholder-text">Descripción breve del juego. (Funcionalidad futura: mostrar juegos aprobados por el supervisor)</p>
+                    <a href="#" class="btn btn-primary btn-sm">Jugar Ahora</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card">
+                <img src="/images/placeholder.jpg" class="card-img-top" alt="Imagen de juego">
+                <div class="card-body">
+                    <h5 class="card-title">Otro Juego</h5>
+                    <p class="card-text placeholder-text">Descripción breve del juego. (Funcionalidad futura: mostrar juegos aprobados por el supervisor)</p>
+                    <a href="#" class="btn btn-primary btn-sm">Jugar Ahora</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card">
+                <img src="/images/placeholder.jpg" class="card-img-top" alt="Imagen de juego">
+                <div class="card-body">
+                    <h5 class="card-title">Tercer Juego</h5>
+                    <p class="card-text placeholder-text">Descripción breve del juego. (Funcionalidad futura: mostrar juegos aprobados por el supervisor)</p>
+                    <a href="#" class="btn btn-primary btn-sm">Jugar Ahora</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Sección de estadísticas o perfil (placeholder) -->
+    <h2 class="mt-5 mb-4">Tu Perfil</h2>
+    <div class="row">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Estadísticas de Juego</h5>
+                    <p class="card-text placeholder-text">Aquí podrás ver tus horas jugadas, juegos favoritos y más. (Funcionalidad futura)</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Configuración</h5>
+                    <p class="card-text placeholder-text">Personaliza tu perfil y preferencias de juego. (Funcionalidad futura)</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

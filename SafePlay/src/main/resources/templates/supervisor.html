@@ -1,10 +1,77 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
-  <title>Supervisor</title>
+  <meta charset="UTF-8">
+  <title>Supervisor - SafePlay</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    body {
+      background: #f5f5f5;
+      font-family: 'Roboto', sans-serif;
+      padding: 2rem;
+    }
+    .card {
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+      border-radius: 12px;
+      margin-bottom: 1.5rem;
+    }
+    .card img {
+      border-top-left-radius: 12px;
+      border-top-right-radius: 12px;
+      height: 200px;
+      object-fit: cover;
+    }
+    .approved {
+      color: green;
+      font-weight: bold;
+    }
+    .not-approved {
+      color: red;
+      font-weight: bold;
+    }
+  </style>
 </head>
 <body>
-<h1 th:text="'Bienvenido, ' + ${usuario.nombre} + ' (Supervisor)'"></h1>
-<p>Aquí puedes gestionar a los jugadores y ver reportes.</p>
+
+<div class="container">
+  <h1 class="mb-4">Bienvenido, <span th:text="${usuario.nombre}">Supervisor</span></h1>
+  <h2 class="mb-4">Videojuegos disponibles para supervisión</h2>
+
+  <div class="row">
+    <div class="col-md-4" th:each="juego : ${videojuegos}">
+      <div class="card">
+        <img th:src="${juego.thumbnail}" class="card-img-top" alt="Imagen del juego" th:unless="${juego.thumbnail == null}"/>
+        <img src="/images/placeholder.jpg" class="card-img-top" alt="Imagen por defecto" th:if="${juego.thumbnail == null}"/>
+        <div class="card-body">
+          <h5 class="card-title" th:text="${juego.title}">Nombre del Juego</h5>
+          <p class="card-text"><strong>Lanzamiento:</strong> <span th:text="${juego.releaseDate}"></span></p>
+          <p class="card-text"><strong>Descripción:</strong> <span th:text="${juego.shortDescription}"></span></p>
+          <p class="card-text"><strong>Género:</strong> <span th:text="${juego.genre}"></span></p>
+          <p class="card-text"><strong>Plataforma:</strong> <span th:text="${juego.platform}"></span></p>
+          <p class="card-text"><strong>Publicador:</strong> <span th:text="${juego.publisher}"></span></p>
+          <p class="card-text"><strong>Desarrollador:</strong> <span th:text="${juego.developer}"></span></p>
+          <p class="card-text">
+            <strong>Estado:</strong>
+            <span th:class="${juego.isApproved} ? 'approved' : 'not-approved'"
+                  th:text="${juego.isApproved} ? 'Apto' : 'No Apto'"></span>
+          </p>
+          <form th:action="@{/supervisor/aprobar}" method="post">
+            <input type="hidden" name="title" th:value="${juego.title}"/>
+            <div class="form-check mb-2">
+              <input type="radio" class="form-check-input" name="isApproved" id="apto_${juego.title}" value="true" th:checked="${juego.isApproved}"/>
+              <label class="form-check-label" for="apto_${juego.title}">Apto</label>
+            </div>
+            <div class="form-check mb-2">
+              <input type="radio" class="form-check-input" name="isApproved" id="noApto_${juego.title}" value="false" th:checked="${!juego.isApproved}"/>
+              <label class="form-check-label" for="noApto_${juego.title}">No Apto</label>
+            </div>
+            <button type="submit" class="btn btn-primary btn-sm">Actualizar Estado</button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
 </body>
 </html>

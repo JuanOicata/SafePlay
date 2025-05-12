@@ -82,13 +82,13 @@ public class UsuarioControlador {
         return "jugador"; // Debes crear esta vista
     }
 
-    @GetMapping("/supervisor")
+    /*@GetMapping("/supervisor")
     public String mostrarPantallaSupervisor(HttpSession session, Model model) {
         Usuario usuario = (Usuario) session.getAttribute("usuarioLogueado");
         if (usuario == null) return "redirect:/login";
 
         model.addAttribute("usuario", usuario);
         return "supervisor"; // Debes crear esta vista
-    }
+    }*/
 
 }
