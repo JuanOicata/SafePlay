@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registro - SafePlay</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, #00c6ff, #0077cc);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .container {
+            background: #fff;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0px 5px 15px rgba(0,0,0,0.2);
+            width: 400px;
+            text-align: center;
+        }
+        h2 {
+            margin-bottom: 20px;
+            color: #0077cc;
+        }
+        input {
+            width: 100%;
+            padding: 12px;
+            margin: 10px 0;
+            border-radius: 8px;
+            border: 1px solid #ddd;
+            outline: none;
+            transition: border 0.3s;
+        }
+        input:focus {
+            border-color: #0077cc;
+        }
+        button {
+            background: #0077cc;
+            color: white;
+            border: none;
+            padding: 12px;
+            width: 100%;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: 0.3s;
+            font-size: 16px;
+        }
+        button:hover {
+            background: #005fa3;
+        }
+        a {
+            display: block;
+            margin-top: 15px;
+            color: #0077cc;
+            text-decoration: none;
+            font-size: 14px;
+        }
+        a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h2>Registro</h2>
+    <form action="/register" method="POST">
+        <input type="text" name="nombre" placeholder="Nombre completo" required>
+        <input type="text" name="usuario" placeholder="Usuario" required>
+        <input type="email" name="email" placeholder="Correo electrónico" required>
+        <input type="password" name="password" placeholder="Contraseña" required>
+        <input type="password" name="confirm_password" placeholder="Confirmar contraseña" required>
+        <button type="submit">Registrarse</button>
+    </form>
+    <a href="/login">¿Ya tienes cuenta? Inicia sesión</a>
+</div>
+</body>
+</html>

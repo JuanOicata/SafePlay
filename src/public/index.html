@@ -3,35 +3,127 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SafePlay</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            text-align: center;
-            background-color: #f5f5f5;
-            margin: 0;
-            padding: 0;
-        }
-        header {
-            background-color: #0077cc;
-            color: white;
-            padding: 20px;
-        }
-        img {
-            max-width: 300px;
-            margin-top: 20px;
-        }
-    </style>
+    <title>SteamGuard - Control Parental</title>
+    <link rel="stylesheet" href="/stylesheets/style.css">
 </head>
 <body>
 <header>
-    <h1>Bienvenido a SafePlay</h1>
-    <p>ALABADO SEA EL INGENIERO JOSE</p>
+    <nav class="container">
+        <a href="#" class="logo">SteamGuard</a>
+        <div class="nav-buttons">
+            <a href="#" class="btn btn-secondary" id="loginBtn">Iniciar Sesión</a>
+            <a href="#" class="btn btn-primary" id="registerBtn">Registrarse</a>
+        </div>
+    </nav>
 </header>
 
-<main>
-    <img src="gamer1.jpeg" alt="Logo de SafePlay">
-    <p>Web para alabar al señor jose </p>
-</main>
+<section class="hero">
+    <div class="container">
+        <div class="hero-content">
+            <h1>Control Parental para Steam</h1>
+            <p>Supervisa y gestiona el tiempo de juego de forma inteligente. Una plataforma completa para padres y jugadores responsables.</p>
+            <div class="hero-buttons">
+                <a href="#" class="btn btn-primary" id="startBtn">Comenzar Ahora</a>
+                <a href="#features" class="btn btn-secondary" id="featuresBtn">Ver Características</a>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="features" id="features">
+    <div class="container">
+        <h2 class="fade-in">Características Principales</h2>
+        <div class="features-grid">
+            <div class="feature-card fade-in">
+                <span class="feature-icon">🎮</span>
+                <h3>Integración con Steam</h3>
+                <p>Conexión directa con la API de Steam para obtener información en tiempo real sobre juegos, estadísticas y tiempo jugado.</p>
+            </div>
+            <div class="feature-card fade-in">
+                <span class="feature-icon">📊</span>
+                <h3>Reportes Detallados</h3>
+                <p>Genera informes completos de actividad con estadísticas de uso por día, semana y mes para un mejor control.</p>
+            </div>
+            <div class="feature-card fade-in">
+                <span class="feature-icon">🔒</span>
+                <h3>Control de Acceso</h3>
+                <p>Bloquea juegos específicos y establece límites de tiempo personalizados para una experiencia de juego balanceada.</p>
+            </div>
+            <div class="feature-card fade-in">
+                <span class="feature-icon">👥</span>
+                <h3>Gestión de Usuarios</h3>
+                <p>Sistema completo de registro y gestión para jugadores y supervisores con roles diferenciados.</p>
+            </div>
+            <div class="feature-card fade-in">
+                <span class="feature-icon">📱</span>
+                <h3>Interfaz Moderna</h3>
+                <p>Diseño responsive y moderno que se adapta a cualquier dispositivo para un acceso fácil desde cualquier lugar.</p>
+            </div>
+            <div class="feature-card fade-in">
+                <span class="feature-icon">🔐</span>
+                <h3>Seguridad Avanzada</h3>
+                <p>Gestión segura de sesiones y credenciales con los más altos estándares de seguridad.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="user-types">
+    <div class="container">
+        <h2 class="fade-in">Perfiles de Usuario</h2>
+        <div class="user-grid">
+            <div class="user-card fade-in">
+                <h3>👤 Jugador</h3>
+                <ul class="user-features">
+                    <li>Visualizar perfil personal con avatar personalizable</li>
+                    <li>Conexión automática con cuenta de Steam</li>
+                    <li>Lista completa de juegos y estadísticas</li>
+                    <li>Panel de control de actividad de juegos</li>
+                    <li>Historial detallado de actividad</li>
+                    <li>Tiempo total jugado por cada juego</li>
+                    <li>Estadísticas de uso diario, semanal y mensual</li>
+                </ul>
+            </div>
+            <div class="user-card fade-in">
+                <h3>👨‍👩‍👧‍👦 Supervisor</h3>
+                <ul class="user-features">
+                    <li>Panel de administración completo</li>
+                    <li>Monitoreo de jugadores registrados</li>
+                    <li>Consulta de información de cualquier jugador</li>
+                    <li>Generación de reportes de uso detallados</li>
+                    <li>Control de bloqueo de juegos y actividades</li>
+                    <li>Configuración de límites de tiempo</li>
+                    <li>Alertas y notificaciones personalizables</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</section>
+
+<footer>
+    <div class="container">
+        <div class="footer-content">
+            <div class="footer-section">
+                <h4>SteamGuard</h4>
+                <p>Control parental inteligente para una experiencia de juego segura y balanceada.</p>
+            </div>
+            <div class="footer-section">
+                <h4>Enlaces Rápidos</h4>
+                <p>Inicio • Características • Registro • Soporte</p>
+            </div>
+            <div class="footer-section">
+                <h4>Contacto</h4>
+                <p>support@steamguard.com<br>+1 (555) 123-4567</p>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2024 SteamGuard. Todos los derechos reservados.</p>
+        </div>
+    </div>
+</footer>
+
+<script src="/javascripts/animations.js"></script>
+<script src="/javascripts/navigation.js"></script>
+<script src="/javascripts/main.js"></script>
 </body>
 </html>
