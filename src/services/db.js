@@ -13,9 +13,9 @@ export async function createTable() {
         // Verificar si la tabla existe
         const checkTable = await pool.query(`
             SELECT EXISTS (
-                SELECT FROM information_schema.tables 
-                WHERE table_schema = 'public' 
-                AND table_name = 'usuarios'
+                SELECT FROM information_schema.tables
+                WHERE table_schema = 'public'
+                  AND table_name = 'usuarios'
             );
         `);
 
@@ -23,29 +23,34 @@ export async function createTable() {
             // Crear tabla solo si no existe
             await pool.query(`
                 CREATE TABLE usuarios (
-                    id SERIAL PRIMARY KEY,
-                    nombre VARCHAR(100),
-                    nombre_usuario VARCHAR(50) UNIQUE,
-                    email VARCHAR(100) UNIQUE,
-                    telefono VARCHAR(15),
-                    cedula VARCHAR(20),
-                    rol VARCHAR(20) NOT NULL CHECK (rol IN ('jugador', 'supervisor')),
-                    password VARCHAR(255),
-                    
-                    steam_id VARCHAR(50) UNIQUE,
-                    steam_avatar TEXT,
-                    
-                    activo BOOLEAN DEFAULT true,
-                    ultimo_login TIMESTAMP,
-                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                                          id SERIAL PRIMARY KEY,
+                                          nombre VARCHAR(100),
+                                          nombre_usuario VARCHAR(50) UNIQUE,
+                                          email VARCHAR(100) UNIQUE,
+                                          telefono VARCHAR(15),
+                                          cedula VARCHAR(20),
+                                          rol VARCHAR(20) NOT NULL CHECK (rol IN ('jugador', 'supervisor')),
+                                          password VARCHAR(255),
+
+                                          steam_id VARCHAR(50) UNIQUE,
+                                          steam_avatar TEXT,
+
+                                          activo BOOLEAN DEFAULT true,
+                                          ultimo_login TIMESTAMP,
+                                          created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
                 )
             `);
-            console.log("Tabla usuarios creada ✅");
+            console.log("✅ Tabla usuarios creada exitosamente");
         } else {
-            console.log("Tabla usuarios ya existe ✅");
+            console.log("✅ Tabla usuarios ya existe");
         }
+
+        // Probar la conexión
+        await pool.query('SELECT 1');
+        console.log("✅ Conexión a la base de datos establecida");
+
     } catch (err) {
-        console.error("Error en DB:", err);
+        console.error("❌ Error en la base de datos:", err.message);
         throw err;
     }
 }
@@ -53,18 +58,21 @@ export async function createTable() {
 // Inserción para usuario supervisor (registro tradicional)
 export async function insertSupervisor(nombre, nombre_usuario, email, telefono, cedula, password) {
     try {
+        console.log("🔄 Insertando supervisor:", nombre_usuario);
+
         const res = await pool.query(
             `INSERT INTO usuarios
                  (nombre, nombre_usuario, email, telefono, cedula, rol, password)
-             VALUES ($1, $2, $3, $4, $5, 'supervisor', $6) RETURNING *`,
+             VALUES ($1, $2, $3, $4, $5, 'supervisor', $6) RETURNING id, nombre_usuario, email, rol`,
             [nombre, nombre_usuario, email, telefono, cedula, password]
         );
-        console.log("Supervisor insertado:", res.rows[0].id);
+
+        console.log("✅ Supervisor insertado exitosamente:", res.rows[0]);
         return res.rows[0];
     } catch (err) {
-        console.error("Error insertando supervisor:", err);
+        console.error("❌ Error insertando supervisor:", err.message);
         if (err.code === '23505') { // Código de error para violación de unique constraint
-            throw new Error('El usuario ya existe');
+            throw new Error('El usuario o email ya existe');
         }
         throw err;
     }
@@ -73,6 +81,8 @@ export async function insertSupervisor(nombre, nombre_usuario, email, telefono, 
 // Inserción para usuario jugador (registro vía Steam)
 export async function insertJugador(steam_id, nombre_usuario, nombre, steam_avatar) {
     try {
+        console.log("🔄 Procesando jugador Steam:", nombre_usuario);
+
         // Verificar si ya existe
         const existing = await pool.query(
             'SELECT * FROM usuarios WHERE steam_id = $1',
@@ -80,6 +90,7 @@ export async function insertJugador(steam_id, nombre_usuario, nombre, steam_avat
         );
 
         if (existing.rows.length > 0) {
+            console.log("ℹ️  Jugador ya existe, actualizando último login");
             // Actualizar último login
             await pool.query(
                 'UPDATE usuarios SET ultimo_login = CURRENT_TIMESTAMP WHERE steam_id = $1',
@@ -90,15 +101,16 @@ export async function insertJugador(steam_id, nombre_usuario, nombre, steam_avat
 
         // Crear nuevo usuario
         const res = await pool.query(
-            `INSERT INTO usuarios 
-             (steam_id, nombre_usuario, nombre, rol, steam_avatar) 
-             VALUES ($1, $2, $3, 'jugador', $4) RETURNING *`,
+            `INSERT INTO usuarios
+                 (steam_id, nombre_usuario, nombre, rol, steam_avatar)
+             VALUES ($1, $2, $3, 'jugador', $4) RETURNING id, nombre_usuario, rol`,
             [steam_id, nombre_usuario, nombre, steam_avatar]
         );
-        console.log("Jugador insertado vía Steam:", res.rows[0].id);
+
+        console.log("✅ Jugador creado exitosamente:", res.rows[0]);
         return res.rows[0];
     } catch (err) {
-        console.error("Error insertando jugador:", err);
+        console.error("❌ Error procesando jugador:", err.message);
         throw err;
     }
 }
@@ -117,7 +129,7 @@ export async function checkUserExists(field, value) {
         );
         return res.rows[0] || null;
     } catch (err) {
-        console.error("Error verificando usuario:", err);
+        console.error("❌ Error verificando usuario:", err.message);
         return null;
     }
 }
@@ -131,7 +143,7 @@ export async function getUserById(id) {
         );
         return res.rows[0] || null;
     } catch (err) {
-        console.error("Error obteniendo usuario:", err);
+        console.error("❌ Error obteniendo usuario:", err.message);
         return null;
     }
 }
@@ -159,15 +171,18 @@ export async function loginUser(nombre_usuario, password) {
                 'UPDATE usuarios SET ultimo_login = CURRENT_TIMESTAMP WHERE id = $1',
                 [user.id]
             );
+            console.log("✅ Login exitoso para:", nombre_usuario);
             return user;
         }
 
         return null;
     } catch (err) {
-        console.error("Error en login:", err);
+        console.error("❌ Error en login:", err.message);
         return null;
     }
 }
 
 // Inicializar tabla al importar el módulo
-createTable().catch(console.error);
+createTable().catch(err => {
+    console.error("❌ Error fatal en inicialización de DB:", err.message);
+});
