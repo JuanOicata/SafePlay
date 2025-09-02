@@ -1,8 +1,17 @@
 
 import express from "express";
 import dotenv from "dotenv";
-import pool from "./db.js";
+import pool from "./services/db.js";
 
+import express from 'express';
+const router = express.Router();
+
+/* GET home page. */
+router.get('/', function(req, res, next) {
+    res.sendFile('index.html', { root: 'public' });
+});
+
+export default router;
 dotenv.config();
 const app = express();
 

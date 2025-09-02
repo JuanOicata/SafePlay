@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Registro - SteamGuard</title>
+    <title>Registro - SafePlay</title>
     <link rel="stylesheet" href="/stylesheets/style.css">
     <link rel="stylesheet" href="/stylesheets/register.css">
 </head>
@@ -11,7 +11,7 @@
 <!-- Header minimalista -->
 <header class="auth-header">
     <nav class="container">
-        <img src="/images/logo1.png" alt="Steam" class="logo-pequeno">
+        <img src="/images/logo1.png" alt="SafePlay" class="logo-pequeno">
         <div class="auth-nav">
             <span>¿Ya tienes cuenta?</span>
             <a href="/login.html" class="btn btn-secondary">Iniciar Sesión</a>
@@ -25,66 +25,130 @@
         <div class="auth-card">
             <!-- Header del formulario -->
             <div class="auth-header-content">
-                <img src="/images/logo1.png" alt="Steam">
+                <img src="/images/logo1.png" alt="SafePlay">
                 <h1>Crear Cuenta</h1>
                 <p>Únete a SafePlay y comienza a gestionar tu tiempo de juego</p>
             </div>
 
-            <!-- Formulario de registro -->
-            <form class="auth-form" id="registroForm" method="POST" action="/registro">
-                <div class="form-row">
-                    <div class="form-group">
-                        <label for="nombre">Nombre Completo</label>
-                        <input
-                                type="text"
-                                id="nombre"
-                                name="nombre"
-                                placeholder="Ingresa tu nombre completo"
-                                required
-                        >
-                        <span class="error-message" id="nombre-error"></span>
+            <!-- Selector de tipo de usuario -->
+            <div class="user-type-selector" id="userTypeSelector">
+                <h2>¿Cómo quieres registrarte?</h2>
+                <div class="user-type-options">
+                    <button type="button" class="user-type-btn" data-type="jugador">
+                        <div class="user-type-icon">🎮</div>
+                        <h3>Soy Jugador</h3>
+                        <p>Regístrate con tu cuenta de Steam</p>
+                        <div class="user-type-badge">Rápido y seguro</div>
+                    </button>
+
+                    <button type="button" class="user-type-btn" data-type="supervisor">
+                        <div class="user-type-icon">👨‍👩‍👧‍👦</div>
+                        <h3>Soy Supervisor</h3>
+                        <p>Registro tradicional con formulario</p>
+                        <div class="user-type-badge">Control parental</div>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Registro para Jugadores (Steam) -->
+            <div class="registro-section" id="registroJugador" style="display: none;">
+                <div class="steam-register-info">
+                    <h2>🎮 Registro de Jugador</h2>
+                    <p>Los jugadores se registran únicamente a través de Steam para garantizar la seguridad y autenticidad de la cuenta.</p>
+
+                    <div class="steam-benefits">
+                        <div class="benefit-item">
+                            <span class="benefit-icon">✅</span>
+                            <span>Registro automático con tus datos de Steam</span>
+                        </div>
+                        <div class="benefit-item">
+                            <span class="benefit-icon">🔒</span>
+                            <span>Login seguro sin contraseñas adicionales</span>
+                        </div>
+                        <div class="benefit-item">
+                            <span class="benefit-icon">⚡</span>
+                            <span>Acceso instantáneo a tus juegos</span>
+                        </div>
                     </div>
 
-                    <div class="form-group">
-                        <label for="usuario">Nombre de Usuario</label>
-                        <input
-                                type="text"
-                                id="usuario"
-                                name="usuario"
-                                placeholder="Elige un nombre de usuario"
-                                required
-                        >
-                        <span class="error-message" id="usuario-error"></span>
+                    <button type="button" class="btn btn-steam btn-large" id="steamRegisterBtn">
+                        <img src="/images/LogSteam.jpg" alt="Steam" class="steam-icon">
+                        <span>Registrarse con Steam</span>
+                    </button>
+
+                    <div class="steam-note">
+                        <small>Al registrarte con Steam, aceptas nuestros términos y condiciones</small>
                     </div>
                 </div>
 
-                <div class="form-row">
-                    <div class="form-group">
-                        <label for="correo">Correo Electrónico</label>
-                        <input
-                                type="email"
-                                id="correo"
-                                name="correo"
-                                placeholder="tu@email.com"
-                                required
-                        >
-                        <span class="error-message" id="correo-error"></span>
-                    </div>
+                <button type="button" class="btn-back" id="backFromJugador">
+                    ← Volver a selección
+                </button>
+            </div>
 
-                    <div class="form-group">
-                        <label for="telefono">Teléfono</label>
-                        <input
-                                type="tel"
-                                id="telefono"
-                                name="telefono"
-                                placeholder="+57 123 456 7890"
-                                required
-                        >
-                        <span class="error-message" id="telefono-error"></span>
-                    </div>
+            <!-- Registro para Supervisores (Formulario tradicional) -->
+            <div class="registro-section" id="registroSupervisor" style="display: none;">
+                <div class="supervisor-register-info">
+                    <h2>👨‍👩‍👧‍👦 Registro de Supervisor</h2>
+                    <p>Complete el formulario para crear su cuenta de supervisor y gestionar las cuentas de los jugadores.</p>
                 </div>
 
-                <div class="form-row">
+                <!-- Formulario de registro para supervisores -->
+                <form class="auth-form" id="registroForm" method="POST" action="/registro">
+                    <input type="hidden" name="rol" value="supervisor">
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="nombre">Nombre Completo</label>
+                            <input
+                                    type="text"
+                                    id="nombre"
+                                    name="nombre"
+                                    placeholder="Ingresa tu nombre completo"
+                                    required
+                            >
+                            <span class="error-message" id="nombre-error"></span>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="usuario">Nombre de Usuario</label>
+                            <input
+                                    type="text"
+                                    id="usuario"
+                                    name="usuario"
+                                    placeholder="Elige un nombre de usuario"
+                                    required
+                            >
+                            <span class="error-message" id="usuario-error"></span>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="correo">Correo Electrónico</label>
+                            <input
+                                    type="email"
+                                    id="correo"
+                                    name="correo"
+                                    placeholder="tu@email.com"
+                                    required
+                            >
+                            <span class="error-message" id="correo-error"></span>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="telefono">Teléfono</label>
+                            <input
+                                    type="tel"
+                                    id="telefono"
+                                    name="telefono"
+                                    placeholder="+57 123 456 7890"
+                                    required
+                            >
+                            <span class="error-message" id="telefono-error"></span>
+                        </div>
+                    </div>
+
                     <div class="form-group">
                         <label for="cedula">Cédula</label>
                         <input
@@ -98,89 +162,72 @@
                     </div>
 
                     <div class="form-group">
-                        <label for="rol">Tipo de Usuario</label>
-                        <select name="rol" id="rol" required>
-                            <option value="">Selecciona tu rol</option>
-                            <option value="comprador">🎮 Jugador</option>
-                            <option value="vendedor">👨‍👩‍👧‍👦 Supervisor</option>
-                        </select>
-                        <span class="error-message" id="rol-error"></span>
+                        <label for="password">Contraseña</label>
+                        <div class="password-input">
+                            <input
+                                    type="password"
+                                    id="password"
+                                    name="password"
+                                    placeholder="Crea una contraseña segura"
+                                    required
+                            >
+                            <button type="button" class="password-toggle" id="togglePassword">
+                                👁️
+                            </button>
+                        </div>
+                        <div class="password-strength" id="passwordStrength">
+                            <div class="strength-bar">
+                                <div class="strength-fill"></div>
+                            </div>
+                            <span class="strength-text">Ingresa una contraseña</span>
+                        </div>
+                        <span class="error-message" id="password-error"></span>
                     </div>
-                </div>
 
-                <div class="form-group">
-                    <label for="password">Contraseña</label>
-                    <div class="password-input">
+                    <div class="form-group">
+                        <label for="confirmPassword">Confirmar Contraseña</label>
                         <input
                                 type="password"
-                                id="password"
-                                name="password"
-                                placeholder="Crea una contraseña segura"
+                                id="confirmPassword"
+                                name="confirmPassword"
+                                placeholder="Repite tu contraseña"
                                 required
                         >
-                        <button type="button" class="password-toggle" id="togglePassword">
-                            👁️
-                        </button>
+                        <span class="error-message" id="confirmPassword-error"></span>
                     </div>
-                    <div class="password-strength" id="passwordStrength">
-                        <div class="strength-bar">
-                            <div class="strength-fill"></div>
-                        </div>
-                        <span class="strength-text">Ingresa una contraseña</span>
-                    </div>
-                    <span class="error-message" id="password-error"></span>
-                </div>
 
-                <div class="form-group">
-                    <label for="confirmPassword">Confirmar Contraseña</label>
-                    <input
-                            type="password"
-                            id="confirmPassword"
-                            name="confirmPassword"
-                            placeholder="Repite tu contraseña"
-                            required
-                    >
-                    <span class="error-message" id="confirmPassword-error"></span>
-                </div>
-
-                <!-- Términos y condiciones -->
-                <div class="form-group checkbox-group">
-                    <label class="checkbox-container">
-                        <input type="checkbox" id="terms" name="terms" required>
-                        <span class="checkmark"></span>
-                        <span class="checkbox-text">
+                    <!-- Términos y condiciones -->
+                    <div class="form-group checkbox-group">
+                        <label class="checkbox-container">
+                            <input type="checkbox" id="terms" name="terms" required>
+                            <span class="checkmark"></span>
+                            <span class="checkbox-text">
                                 Acepto los <a href="/terminos" target="_blank">términos y condiciones</a>
                                 y la <a href="/privacidad" target="_blank">política de privacidad</a>
                             </span>
-                    </label>
-                    <span class="error-message" id="terms-error"></span>
-                </div>
-
-                <!-- Botón de envío -->
-                <button type="submit" class="btn btn-primary btn-full" id="submitBtn">
-                    <span class="btn-text">Crear Cuenta</span>
-                    <div class="btn-loader" id="btnLoader">
-                        <div class="spinner"></div>
+                        </label>
+                        <span class="error-message" id="terms-error"></span>
                     </div>
-                </button>
 
-                <!-- Mensaje de error general -->
-                <div class="form-message" id="formMessage"></div>
-            </form>
-
-            <!-- Enlaces adicionales -->
-            <div class="auth-footer">
-                <div class="divider">
-                    <span>o</span>
-                </div>
-
-                <div class="social-login">
-                    <button type="button" class="btn btn-social btn-steam" id="steamLogin">
-                        <img src="/images/LogSteam.jpg" alt="Steam">
-                        Registrarse con Steam
+                    <!-- Botón de envío -->
+                    <button type="submit" class="btn btn-primary btn-full" id="submitBtn">
+                        <span class="btn-text">Crear Cuenta de Supervisor</span>
+                        <div class="btn-loader" id="btnLoader">
+                            <div class="spinner"></div>
+                        </div>
                     </button>
-                </div>
 
+                    <!-- Mensaje de resultado -->
+                    <div class="form-message" id="formMessage"></div>
+                </form>
+
+                <button type="button" class="btn-back" id="backFromSupervisor">
+                    ← Volver a selección
+                </button>
+            </div>
+
+            <!-- Enlaces adicionales (solo visible en la selección inicial) -->
+            <div class="auth-footer" id="authFooter">
                 <div class="auth-links">
                     <p>¿Ya tienes una cuenta? <a href="/login.html">Iniciar sesión</a></p>
                     <p><a href="/">Volver al inicio</a></p>
@@ -192,5 +239,191 @@
 
 <!-- Scripts -->
 <script src="/javascripts/registro.js"></script>
+
+<style>
+    /* Estilos adicionales para el nuevo diseño */
+    .user-type-selector {
+        text-align: center;
+        margin-bottom: 2rem;
+    }
+
+    .user-type-selector h2 {
+        margin-bottom: 2rem;
+        color: #2c3e50;
+        font-size: 1.5rem;
+    }
+
+    .user-type-options {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1.5rem;
+        margin-bottom: 2rem;
+    }
+
+    .user-type-btn {
+        background: white;
+        border: 2px solid #e0e0e0;
+        border-radius: 12px;
+        padding: 2rem 1.5rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        text-align: center;
+        position: relative;
+    }
+
+    .user-type-btn:hover {
+        border-color: #3498db;
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(52, 152, 219, 0.15);
+    }
+
+    .user-type-btn.selected {
+        border-color: #3498db;
+        background: #f8fcff;
+    }
+
+    .user-type-icon {
+        font-size: 3rem;
+        margin-bottom: 1rem;
+    }
+
+    .user-type-btn h3 {
+        margin: 0.5rem 0;
+        color: #2c3e50;
+        font-size: 1.2rem;
+    }
+
+    .user-type-btn p {
+        margin: 0;
+        color: #7f8c8d;
+        font-size: 0.9rem;
+    }
+
+    .user-type-badge {
+        background: #3498db;
+        color: white;
+        padding: 0.3rem 0.8rem;
+        border-radius: 20px;
+        font-size: 0.8rem;
+        margin-top: 1rem;
+        display: inline-block;
+    }
+
+    .registro-section {
+        animation: slideIn 0.3s ease;
+    }
+
+    @keyframes slideIn {
+        from { opacity: 0; transform: translateY(20px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    .steam-register-info, .supervisor-register-info {
+        text-align: center;
+        margin-bottom: 2rem;
+    }
+
+    .steam-register-info h2, .supervisor-register-info h2 {
+        color: #2c3e50;
+        margin-bottom: 1rem;
+    }
+
+    .steam-benefits {
+        text-align: left;
+        margin: 2rem 0;
+        background: #f8f9fa;
+        padding: 1.5rem;
+        border-radius: 8px;
+    }
+
+    .benefit-item {
+        display: flex;
+        align-items: center;
+        margin-bottom: 1rem;
+    }
+
+    .benefit-item:last-child {
+        margin-bottom: 0;
+    }
+
+    .benefit-icon {
+        margin-right: 1rem;
+        font-size: 1.2rem;
+    }
+
+    .btn-steam {
+        background: #171a21;
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 1rem;
+        padding: 1rem 2rem;
+        border: none;
+        border-radius: 8px;
+        font-size: 1.1rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        width: 100%;
+        margin: 2rem 0;
+    }
+
+    .btn-steam:hover {
+        background: #1e2328;
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(23, 26, 33, 0.3);
+    }
+
+    .btn-large {
+        padding: 1.2rem 2rem;
+        font-size: 1.2rem;
+    }
+
+    .steam-icon {
+        width: 24px;
+        height: 24px;
+        border-radius: 4px;
+    }
+
+    .steam-note {
+        text-align: center;
+        color: #7f8c8d;
+        margin-top: 1rem;
+    }
+
+    .btn-back {
+        background: none;
+        border: 1px solid #bdc3c7;
+        color: #7f8c8d;
+        padding: 0.8rem 1.5rem;
+        border-radius: 6px;
+        cursor: pointer;
+        font-size: 0.9rem;
+        transition: all 0.3s ease;
+        margin-top: 2rem;
+        width: 100%;
+    }
+
+    .btn-back:hover {
+        background: #f8f9fa;
+        border-color: #95a5a6;
+    }
+
+    @media (max-width: 768px) {
+        .user-type-options {
+            grid-template-columns: 1fr;
+            gap: 1rem;
+        }
+
+        .user-type-btn {
+            padding: 1.5rem 1rem;
+        }
+
+        .user-type-icon {
+            font-size: 2.5rem;
+        }
+    }
+</style>
 </body>
 </html>
