@@ -1,0 +1,375 @@
+/* login.css - Estilos para la página de login */
+
+/* Usar los mismos estilos base del registro */
+@import url('register.css');
+
+/* Modificaciones específicas para login */
+.auth-main {
+    background: linear-gradient(135deg, #4682B4 0%, #87CEEB 50%, #ffffff 100%);
+}
+
+.auth-container {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 3rem;
+    max-width: 1000px;
+    align-items: center;
+}
+
+.auth-card {
+    box-shadow: 0 25px 70px rgba(70, 130, 180, 0.3);
+}
+
+.auth-header-content {
+    background: linear-gradient(135deg, #4682B4, #2c5aa0);
+    padding: 2.5rem 2rem;
+}
+
+.auth-header-content h1 {
+    font-size: 2rem;
+    margin-bottom: 0.5rem;
+}
+
+.auth-form {
+    padding: 2.5rem 2rem;
+}
+
+/* Opciones del formulario */
+.form-options {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin: 1.5rem 0;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
+.forgot-password {
+    color: #4682B4;
+    text-decoration: none;
+    font-size: 0.9rem;
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+
+.forgot-password:hover {
+    color: #2c5aa0;
+    text-decoration: underline;
+}
+
+/* Panel de información */
+.info-panel {
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    border-radius: 20px;
+    padding: 3rem 2rem;
+    color: white;
+    text-align: left;
+    animation: slideInRight 0.8s ease-out;
+}
+
+@keyframes slideInRight {
+    from {
+        opacity: 0;
+        transform: translateX(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+.info-content h2 {
+    font-size: 2rem;
+    margin-bottom: 2rem;
+    color: white;
+    text-align: center;
+}
+
+.info-features {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.info-feature {
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+    padding: 1.5rem;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    transition: all 0.3s ease;
+}
+
+.info-feature:hover {
+    background: rgba(255, 255, 255, 0.15);
+    transform: translateY(-2px);
+}
+
+.feature-icon {
+    font-size: 2rem;
+    flex-shrink: 0;
+}
+
+.info-feature h3 {
+    font-size: 1.2rem;
+    margin-bottom: 0.5rem;
+    color: white;
+}
+
+.info-feature p {
+    color: rgba(255, 255, 255, 0.8);
+    font-size: 0.9rem;
+    line-height: 1.4;
+}
+
+/* Animaciones escalonadas para las características */
+.info-feature:nth-child(1) {
+    animation: fadeInUp 0.6s ease 0.2s both;
+}
+
+.info-feature:nth-child(2) {
+    animation: fadeInUp 0.6s ease 0.4s both;
+}
+
+.info-feature:nth-child(3) {
+    animation: fadeInUp 0.6s ease 0.6s both;
+}
+
+/* Efectos especiales para login */
+.auth-card {
+    position: relative;
+    overflow: visible;
+}
+
+.auth-card::before {
+    content: '';
+    position: absolute;
+    top: -2px;
+    left: -2px;
+    right: -2px;
+    bottom: -2px;
+    background: linear-gradient(45deg, #87CEEB, #4682B4, #2c5aa0, #87CEEB);
+    border-radius: 22px;
+    opacity: 0;
+    z-index: -1;
+    animation: borderGlow 3s ease-in-out infinite alternate;
+}
+
+@keyframes borderGlow {
+    0% {
+        opacity: 0;
+        transform: scale(1);
+    }
+    100% {
+        opacity: 0.3;
+        transform: scale(1.01);
+    }
+}
+
+/* Estados de carga mejorados para login */
+.btn-primary.loading {
+    background: linear-gradient(45deg, #6c94c4, #87CEEB);
+    animation: pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes pulse {
+    0%, 100% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.02);
+    }
+}
+
+/* Mejoras para el panel de información en móviles */
+@media (max-width: 968px) {
+    .auth-container {
+        grid-template-columns: 1fr;
+        gap: 2rem;
+    }
+
+    .info-panel {
+        order: -1;
+        padding: 2rem 1.5rem;
+        margin-bottom: 1rem;
+    }
+
+    .info-content h2 {
+        font-size: 1.5rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .info-features {
+        flex-direction: row;
+        gap: 1rem;
+        overflow-x: auto;
+        padding-bottom: 1rem;
+    }
+
+    .info-feature {
+        min-width: 250px;
+        flex-shrink: 0;
+    }
+}
+
+@media (max-width: 768px) {
+    .auth-main {
+        padding-top: 120px;
+    }
+
+    .info-panel {
+        background: rgba(255, 255, 255, 0.95);
+        color: #2c3e50;
+    }
+
+    .info-content h2 {
+        color: #2c3e50;
+    }
+
+    .info-feature h3 {
+        color: #4682B4;
+    }
+
+    .info-feature p {
+        color: #5a6c7d;
+    }
+
+    .info-feature {
+        background: rgba(135, 206, 235, 0.1);
+    }
+
+    .info-feature:hover {
+        background: rgba(135, 206, 235, 0.2);
+    }
+
+    .info-features {
+        flex-direction: column;
+        gap: 1rem;
+    }
+
+    .info-feature {
+        min-width: auto;
+    }
+}
+
+@media (max-width: 480px) {
+    .form-options {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+    }
+
+    .info-panel {
+        padding: 1.5rem 1rem;
+    }
+
+    .info-content h2 {
+        font-size: 1.3rem;
+    }
+
+    .info-feature {
+        padding: 1rem;
+        flex-direction: column;
+        text-align: center;
+        gap: 0.5rem;
+    }
+
+    .feature-icon {
+        font-size: 1.5rem;
+    }
+}
+
+/* Animación especial para el icono de login */
+.auth-icon {
+    animation: bounce 2s ease-in-out infinite;
+}
+
+@keyframes bounce {
+    0%, 100% {
+        transform: translateY(0);
+    }
+    50% {
+        transform: translateY(-10px);
+    }
+}
+
+/* Efecto de partículas de fondo */
+.auth-main::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-image:
+            radial-gradient(circle at 20% 50%, rgba(255, 255, 255, 0.1) 0%, transparent 50%),
+            radial-gradient(circle at 80% 20%, rgba(255, 255, 255, 0.1) 0%, transparent 50%),
+            radial-gradient(circle at 40% 80%, rgba(255, 255, 255, 0.1) 0%, transparent 50%);
+    animation: float 8s ease-in-out infinite;
+    pointer-events: none;
+}
+
+/* Mejora del botón de Steam para login */
+.btn-steam {
+    background: linear-gradient(135deg, #171a21, #2a475e);
+    position: relative;
+    overflow: hidden;
+}
+
+.btn-steam::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+    transition: left 0.5s;
+}
+
+.btn-steam:hover::before {
+    left: 100%;
+}
+
+/* Indicador de estado de conexión */
+.connection-status {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-top: 1rem;
+    padding: 0.5rem 1rem;
+    background: rgba(40, 167, 69, 0.1);
+    border: 1px solid rgba(40, 167, 69, 0.3);
+    border-radius: 6px;
+    font-size: 0.8rem;
+    color: #28a745;
+}
+
+.connection-status.offline {
+    background: rgba(220, 53, 69, 0.1);
+    border-color: rgba(220, 53, 69, 0.3);
+    color: #dc3545;
+}
+
+.status-indicator {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: currentColor;
+    animation: statusPulse 2s ease-in-out infinite;
+}
+
+@keyframes statusPulse {
+    0%, 100% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.5;
+    }
+}
+.logo-pequeno {
+    width: 150px; /* O el tamaño que prefieras */
+    height: auto; /* Mantiene la proporción original */
+}

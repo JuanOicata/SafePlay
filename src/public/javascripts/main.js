@@ -1,278 +1,252 @@
-// main.js - Archivo principal de la aplicación
+// main.js - Versión simplificada para debugging
+console.log('🚀 Cargando SteamGuard...');
 
-class SteamGuardApp {
-    constructor() {
-        this.animationManager = null;
-        this.navigationManager = null;
-        this.isInitialized = false;
+// Función principal que se ejecuta cuando el DOM está listo
+function initSteamGuard() {
+    console.log('✅ DOM cargado, inicializando...');
 
-        this.init();
-    }
+    try {
+        // Configurar navegación básica
+        setupBasicNavigation();
 
-    // Inicializar la aplicación
-    init() {
-        // Esperar a que el DOM esté completamente cargado
-        if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', () => this.setup());
-        } else {
-            this.setup();
-        }
-    }
+        // Configurar animaciones básicas
+        setupBasicAnimations();
 
-    // Configurar todos los componentes
-    setup() {
-        try {
-            console.log('🚀 Inicializando SteamGuard...');
+        // Configurar botones
+        setupButtons();
 
-            // Inicializar managers
-            this.animationManager = new AnimationManager();
-            this.navigationManager = new NavigationManager();
+        console.log('✅ SteamGuard inicializado correctamente');
 
-            // Conectar managers
-            this.navigationManager.setAnimationManager(this.animationManager);
+        // Mostrar mensaje de éxito
+        showNotification('¡Aplicación cargada exitosamente! 🎮', 'success');
 
-            // Configurar eventos globales
-            this.setupGlobalEvents();
-
-            // Configurar utilidades
-            this.setupUtilities();
-
-            // Marcar como inicializado
-            this.isInitialized = true;
-
-            console.log('✅ SteamGuard inicializado correctamente');
-
-            // Mostrar mensaje de bienvenida
-            setTimeout(() => {
-                this.showWelcomeMessage();
-            }, 1000);
-
-        } catch (error) {
-            console.error('❌ Error al inicializar SteamGuard:', error);
-            this.handleInitError(error);
-        }
-    }
-
-    // Configurar eventos globales
-    setupGlobalEvents() {
-        // Manejar errores globales
-        window.addEventListener('error', (e) => {
-            console.error('Error global:', e.error);
-            this.handleError(e.error);
-        });
-
-        // Manejar resize de ventana
-        let resizeTimeout;
-        window.addEventListener('resize', () => {
-            clearTimeout(resizeTimeout);
-            resizeTimeout = setTimeout(() => {
-                this.handleResize();
-            }, 250);
-        });
-
-        // Manejar visibilidad de la página
-        document.addEventListener('visibilitychange', () => {
-            if (document.visibilityState === 'visible') {
-                this.onPageVisible();
-            } else {
-                this.onPageHidden();
-            }
-        });
-
-        // Prevenir zoom excesivo en móviles
-        this.preventMobileZoom();
-    }
-
-    // Configurar utilidades adicionales
-    setupUtilities() {
-        // Configurar tooltips si los necesitas
-        this.setupTooltips();
-
-        // Configurar lazy loading para imágenes
-        this.setupLazyLoading();
-
-        // Configurar analytics si los necesitas
-        this.setupAnalytics();
-    }
-
-    // Configurar tooltips
-    setupTooltips() {
-        const tooltipElements = document.querySelectorAll('[data-tooltip]');
-        tooltipElements.forEach(element => {
-            element.addEventListener('mouseenter', this.showTooltip.bind(this));
-            element.addEventListener('mouseleave', this.hideTooltip.bind(this));
-        });
-    }
-
-    // Mostrar tooltip
-    showTooltip(e) {
-        const element = e.target;
-        const text = element.getAttribute('data-tooltip');
-
-        const tooltip = document.createElement('div');
-        tooltip.className = 'tooltip';
-        tooltip.textContent = text;
-        tooltip.style.cssText = `
-            position: absolute;
-            background: #333;
-            color: white;
-            padding: 8px 12px;
-            border-radius: 4px;
-            font-size: 14px;
-            z-index: 10000;
-            pointer-events: none;
-            opacity: 0;
-            transition: opacity 0.3s ease;
-        `;
-
-        document.body.appendChild(tooltip);
-
-        const rect = element.getBoundingClientRect();
-        tooltip.style.left = rect.left + (rect.width / 2) - (tooltip.offsetWidth / 2) + 'px';
-        tooltip.style.top = rect.top - tooltip.offsetHeight - 10 + 'px';
-
-        setTimeout(() => tooltip.style.opacity = '1', 10);
-
-        element._tooltip = tooltip;
-    }
-
-    // Ocultar tooltip
-    hideTooltip(e) {
-        const element = e.target;
-        if (element._tooltip) {
-            element._tooltip.style.opacity = '0';
-            setTimeout(() => {
-                if (element._tooltip && element._tooltip.parentNode) {
-                    element._tooltip.parentNode.removeChild(element._tooltip);
-                }
-                element._tooltip = null;
-            }, 300);
-        }
-    }
-
-    // Configurar lazy loading
-    setupLazyLoading() {
-        const images = document.querySelectorAll('img[data-src]');
-        const imageObserver = new IntersectionObserver((entries) => {
-            entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    const img = entry.target;
-                    img.src = img.dataset.src;
-                    img.removeAttribute('data-src');
-                    imageObserver.unobserve(img);
-                }
-            });
-        });
-
-        images.forEach(img => imageObserver.observe(img));
-    }
-
-    // Configurar analytics (placeholder)
-    setupAnalytics() {
-        // Aquí puedes agregar Google Analytics, Mixpanel, etc.
-        console.log('📊 Analytics configurado');
-    }
-
-    // Prevenir zoom excesivo en móviles
-    preventMobileZoom() {
-        document.addEventListener('touchstart', (e) => {
-            if (e.touches.length > 1) {
-                e.preventDefault();
-            }
-        }, { passive: false });
-
-        let lastTouchEnd = 0;
-        document.addEventListener('touchend', (e) => {
-            const now = (new Date()).getTime();
-            if (now - lastTouchEnd <= 300) {
-                e.preventDefault();
-            }
-            lastTouchEnd = now;
-        }, false);
-    }
-
-    // Manejar cambio de tamaño de ventana
-    handleResize() {
-        if (this.animationManager) {
-            // Recalcular animaciones si es necesario
-            console.log('📱 Redimensionando ventana');
-        }
-    }
-
-    // Cuando la página se vuelve visible
-    onPageVisible() {
-        console.log('👁️ Página visible');
-        // Reanudar animaciones, actualizar datos, etc.
-    }
-
-    // Cuando la página se oculta
-    onPageHidden() {
-        console.log('🙈 Página oculta');
-        // Pausar animaciones, guardar estado, etc.
-    }
-
-    // Mostrar mensaje de bienvenida
-    showWelcomeMessage() {
-        if (this.navigationManager) {
-            this.navigationManager.showNotification(
-                '¡Bienvenido a SteamGuard! 🎮',
-                'success'
-            );
-        }
-    }
-
-    // Manejar errores de inicialización
-    handleInitError(error) {
-        console.error('Error de inicialización:', error);
-
-        // Mostrar mensaje de error al usuario
-        const errorDiv = document.createElement('div');
-        errorDiv.style.cssText = `
-            position: fixed;
-            top: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: #dc3545;
-            color: white;
-            padding: 15px 25px;
-            border-radius: 8px;
-            z-index: 9999;
-            font-weight: 600;
-        `;
-        errorDiv.textContent = 'Error al cargar la aplicación. Por favor, recarga la página.';
-        document.body.appendChild(errorDiv);
-    }
-
-    // Manejar errores generales
-    handleError(error) {
-        console.error('Error:', error);
-        // Aquí puedes enviar errores a un servicio de logging
-    }
-
-    // Método para obtener información del sistema
-    getSystemInfo() {
-        return {
-            userAgent: navigator.userAgent,
-            language: navigator.language,
-            platform: navigator.platform,
-            screenResolution: `${screen.width}x${screen.height}`,
-            isInitialized: this.isInitialized,
-            timestamp: new Date().toISOString()
-        };
-    }
-
-    // Método para cleanup cuando se cierre la aplicación
-    destroy() {
-        if (this.animationManager) {
-            this.animationManager.destroy();
-        }
-
-        console.log('🧹 Aplicación limpiada');
+    } catch (error) {
+        console.error('❌ Error al inicializar:', error);
+        showErrorMessage(error.message);
     }
 }
 
-// Inicializar la aplicación cuando se cargue el script
-const app = new SteamGuardApp();
+// Configurar navegación básica
+function setupBasicNavigation() {
+    // Smooth scrolling para enlaces internos
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener('click', function (e) {
+            e.preventDefault();
+            const target = document.querySelector(this.getAttribute('href'));
+            if (target) {
+                target.scrollIntoView({
+                    behavior: 'smooth',
+                    block: 'start'
+                });
+            }
+        });
+    });
 
-// Hacer la app accesible globalmente para debugging
-window.SteamGuardApp = app;
+    console.log('📱 Navegación configurada');
+}
+
+// Configurar animaciones básicas
+function setupBasicAnimations() {
+    // Animaciones de scroll
+    const observerOptions = {
+        threshold: 0.1,
+        rootMargin: '0px 0px -50px 0px'
+    };
+
+    const observer = new IntersectionObserver(function(entries) {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.classList.add('visible', 'animate');
+            }
+        });
+    }, observerOptions);
+
+    // Observar elementos
+    document.querySelectorAll('.fade-in, .feature-card, .user-card').forEach(el => {
+        observer.observe(el);
+    });
+
+    // Efecto de header al hacer scroll
+    let ticking = false;
+    window.addEventListener('scroll', function() {
+        if (!ticking) {
+            requestAnimationFrame(function() {
+                const scrolled = window.pageYOffset;
+                const header = document.querySelector('header');
+
+                if (header) {
+                    if (scrolled > 50) {
+                        header.style.background = 'rgba(255, 255, 255, 0.98)';
+                        header.style.boxShadow = '0 2px 30px rgba(135, 206, 235, 0.4)';
+                    } else {
+                        header.style.background = 'rgba(255, 255, 255, 0.95)';
+                        header.style.boxShadow = '0 2px 20px rgba(135, 206, 235, 0.3)';
+                    }
+                }
+                ticking = false;
+            });
+            ticking = true;
+        }
+    });
+
+    console.log('🎭 Animaciones configuradas');
+}
+
+// Configurar botones
+function setupButtons() {
+    // Botón de registro
+    const registerBtn = document.getElementById('registerBtn');
+    if (registerBtn) {
+        registerBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            handleButtonClick(this, 'Redirigiendo a registro...');
+            setTimeout(() => {
+                window.location.href = '/registro';
+            }, 500);
+        });
+    }
+
+    // Botón de login
+    const loginBtn = document.getElementById('loginBtn');
+    if (loginBtn) {
+        loginBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            handleButtonClick(this, 'Redirigiendo a iniciar sesión...');
+            setTimeout(() => {
+                window.location.href = '/login';
+            }, 500);
+        });
+    }
+
+    // Botón de comenzar
+    const startBtn = document.getElementById('startBtn');
+    if (startBtn) {
+        startBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            handleButtonClick(this, '¡Comenzemos!');
+        });
+    }
+
+    // Botón de características
+    const featuresBtn = document.getElementById('featuresBtn');
+    if (featuresBtn) {
+        featuresBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            const featuresSection = document.getElementById('features');
+            if (featuresSection) {
+                featuresSection.scrollIntoView({
+                    behavior: 'smooth',
+                    block: 'start'
+                });
+            }
+        });
+    }
+
+    console.log('🔘 Botones configurados');
+}
+
+// Manejar clics de botones con animación
+function handleButtonClick(button, message) {
+    if (button.classList.contains('loading')) return;
+
+    button.classList.add('loading');
+    button.style.opacity = '0.7';
+    button.style.transform = 'scale(0.98)';
+
+    setTimeout(() => {
+        button.classList.remove('loading');
+        button.style.opacity = '1';
+        button.style.transform = 'scale(1)';
+
+        showNotification(message, 'info');
+        console.log('Botón clickeado:', button.textContent);
+    }, 300);
+}
+
+// Mostrar notificaciones
+function showNotification(message, type = 'info') {
+    const notification = document.createElement('div');
+    notification.textContent = message;
+
+    // Estilos
+    const colors = {
+        info: '#87CEEB',
+        success: '#28a745',
+        error: '#dc3545'
+    };
+
+    notification.style.cssText = `
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        padding: 15px 25px;
+        border-radius: 8px;
+        background: ${colors[type] || colors.info};
+        color: white;
+        font-weight: 600;
+        z-index: 9999;
+        opacity: 0;
+        transform: translateX(100px);
+        transition: all 0.3s ease;
+    `;
+
+    document.body.appendChild(notification);
+
+    // Animar entrada
+    setTimeout(() => {
+        notification.style.opacity = '1';
+        notification.style.transform = 'translateX(0)';
+    }, 100);
+
+    // Remover después de 3 segundos
+    setTimeout(() => {
+        notification.style.opacity = '0';
+        notification.style.transform = 'translateX(100px)';
+        setTimeout(() => {
+            if (notification.parentNode) {
+                notification.parentNode.removeChild(notification);
+            }
+        }, 300);
+    }, 3000);
+}
+
+// Mostrar mensaje de error
+function showErrorMessage(errorMsg) {
+    const errorDiv = document.createElement('div');
+    errorDiv.style.cssText = `
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background: #dc3545;
+        color: white;
+        padding: 20px 30px;
+        border-radius: 8px;
+        z-index: 9999;
+        font-weight: 600;
+        text-align: center;
+        max-width: 90%;
+    `;
+    errorDiv.innerHTML = `
+        <h3>Error al cargar</h3>
+        <p>${errorMsg}</p>
+        <button onclick="location.reload()" style="
+            background: white;
+            color: #dc3545;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            margin-top: 10px;
+            cursor: pointer;
+            font-weight: 600;
+        ">Recargar página</button>
+    `;
+    document.body.appendChild(errorDiv);
+}
+
+// Inicializar cuando el DOM esté listo
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initSteamGuard);
+} else {
+    initSteamGuard();
+}

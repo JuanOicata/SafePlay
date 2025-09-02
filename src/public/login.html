@@ -3,76 +3,141 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Iniciar Sesión - SafePlay</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background: linear-gradient(135deg, #0077cc, #00c6ff);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            margin: 0;
-        }
-        .container {
-            background: #fff;
-            padding: 30px;
-            border-radius: 15px;
-            box-shadow: 0px 5px 15px rgba(0,0,0,0.2);
-            width: 350px;
-            text-align: center;
-        }
-        h2 {
-            margin-bottom: 20px;
-            color: #0077cc;
-        }
-        input {
-            width: 100%;
-            padding: 12px;
-            margin: 10px 0;
-            border-radius: 8px;
-            border: 1px solid #ddd;
-            outline: none;
-            transition: border 0.3s;
-        }
-        input:focus {
-            border-color: #0077cc;
-        }
-        button {
-            background: #0077cc;
-            color: white;
-            border: none;
-            padding: 12px;
-            width: 100%;
-            border-radius: 8px;
-            cursor: pointer;
-            transition: 0.3s;
-            font-size: 16px;
-        }
-        button:hover {
-            background: #005fa3;
-        }
-        a {
-            display: block;
-            margin-top: 15px;
-            color: #0077cc;
-            text-decoration: none;
-            font-size: 14px;
-        }
-        a:hover {
-            text-decoration: underline;
-        }
-    </style>
+    <title>Iniciar Sesión - SteamGuard</title>
+    <link rel="stylesheet" href="/stylesheets/style.css">
+    <link rel="stylesheet" href="/stylesheets/login.css">
 </head>
 <body>
-<div class="container">
-    <h2>Iniciar Sesión</h2>
-    <form action="/login" method="POST">
-        <input type="text" name="usuario" placeholder="Usuario" required>
-        <input type="password" name="password" placeholder="Contraseña" required>
-        <button type="submit">Entrar</button>
-    </form>
-    <a href="/register">¿No tienes cuenta? Regístrate aquí</a>
-</div>
+<!-- Header minimalista -->
+<header class="auth-header">
+    <nav class="container">
+        <img src="/images/logo1.png" alt="Steam" class="logo-pequeno">
+        <div class="auth-nav">
+            <span>¿No tienes cuenta?</span>
+            <a href="/registro.html" class="btn btn-secondary">Registrarse</a>
+        </div>
+    </nav>
+</header>
+
+<!-- Main Content -->
+<main class="auth-main">
+    <div class="auth-container">
+        <div class="auth-card">
+            <!-- Header del formulario -->
+            <div class="auth-header-content">
+                <div class="auth-icon">🎮</div>
+                <h1>Bienvenido de Nuevo</h1>
+                <p>Inicia sesión para continuar gestionando tu experiencia gaming</p>
+            </div>
+
+            <!-- Formulario de login -->
+            <form class="auth-form" id="loginForm" method="POST" action="/login">
+                <div class="form-group">
+                    <label for="usuario">Usuario o Email</label>
+                    <input
+                            type="text"
+                            id="usuario"
+                            name="usuario"
+                            placeholder="Nombre de usuario o correo electrónico"
+                            required
+                            autocomplete="username"
+                    >
+                    <span class="error-message" id="usuario-error"></span>
+                </div>
+
+                <div class="form-group">
+                    <label for="password">Contraseña</label>
+                    <div class="password-input">
+                        <input
+                                type="password"
+                                id="password"
+                                name="password"
+                                placeholder="Tu contraseña"
+                                required
+                                autocomplete="current-password"
+                        >
+                        <button type="button" class="password-toggle" id="togglePassword">
+                            👁️
+                        </button>
+                    </div>
+                    <span class="error-message" id="password-error"></span>
+                </div>
+
+                <!-- Opciones adicionales -->
+                <div class="form-options">
+                    <label class="checkbox-container">
+                        <input type="checkbox" id="remember" name="remember">
+                        <span class="checkmark"></span>
+                        <span class="checkbox-text">Mantener sesión iniciada</span>
+                    </label>
+                    <a href="/recuperar-password" class="forgot-password">¿Olvidaste tu contraseña?</a>
+                </div>
+
+                <!-- Botón de envío -->
+                <button type="submit" class="btn btn-primary btn-full" id="submitBtn">
+                    <span class="btn-text">Iniciar Sesión</span>
+                    <div class="btn-loader" id="btnLoader">
+                        <div class="spinner"></div>
+                    </div>
+                </button>
+
+                <!-- Mensaje de error general -->
+                <div class="form-message" id="formMessage"></div>
+            </form>
+
+            <!-- Enlaces adicionales -->
+            <div class="auth-footer">
+                <div class="divider">
+                    <span>o</span>
+                </div>
+
+                <div class="social-login">
+                    <button type="button" class="btn btn-social btn-steam" id="steamLogin">
+                        <img src="/images/LogSteam.jpg" alt="Steam">
+                        Iniciar con Steam
+                    </button>
+                </div>
+
+                <div class="auth-links">
+                    <p>¿No tienes una cuenta? <a href="/registro.html">Crear cuenta</a></p>
+                    <p><a href="/">Volver al inicio</a></p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Panel de información -->
+        <div class="info-panel">
+            <div class="info-content">
+                <h2>Control Inteligente</h2>
+                <div class="info-features">
+                    <div class="info-feature">
+                        <span class="feature-icon">📊</span>
+                        <div>
+                            <h3>Estadísticas Detalladas</h3>
+                            <p>Monitorea tiempo de juego, patrones y tendencias</p>
+                        </div>
+                    </div>
+                    <div class="info-feature">
+                        <span class="feature-icon">🔒</span>
+                        <div>
+                            <h3>Control Avanzado</h3>
+                            <p>Establece límites y restricciones personalizadas</p>
+                        </div>
+                    </div>
+                    <div class="info-feature">
+                        <span class="feature-icon">👥</span>
+                        <div>
+                            <h3>Gestión Familiar</h3>
+                            <p>Supervisa múltiples cuentas desde un panel</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+
+<!-- Scripts -->
+<script src="/javascripts/login.js"></script>
 </body>
 </html>

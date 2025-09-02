@@ -7,3 +7,19 @@ router.get('/', function(req, res, next) {
 });
 
 module.exports = router;
+
+// Importar funciones actualizadas
+const {
+  registroConSteam,
+  loginConSteam,
+  getDashboardJugador,
+  getDashboardSupervisor
+} = require('../controladores/usuarioControlador');
+
+// Actualizar rutas existentes
+app.post('/api/registro', registroConSteam);
+app.post('/api/login', loginConSteam);
+
+// Nuevas rutas de dashboard
+app.get('/api/dashboard-jugador', requireAuth, getDashboardJugador);
+app.get('/api/dashboard-supervisor', requireAuth, getDashboardSupervisor);

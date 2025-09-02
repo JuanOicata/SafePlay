@@ -39,3 +39,12 @@ app.use(function(err, req, res, next) {
 });
 
 module.exports = app;
+// Ruta para registro
+app.get('/registro', (req, res) => {
+  res.sendFile(path.join(__dirname, 'src/public', 'registro.html'));
+});
+
+// Ruta para login
+app.get('/login', (req, res) => {
+  res.sendFile(path.join(__dirname, 'src/public', 'login.html'));
+});

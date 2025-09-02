@@ -3,79 +3,194 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Registro - SafePlay</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background: linear-gradient(135deg, #00c6ff, #0077cc);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            margin: 0;
-        }
-        .container {
-            background: #fff;
-            padding: 30px;
-            border-radius: 15px;
-            box-shadow: 0px 5px 15px rgba(0,0,0,0.2);
-            width: 400px;
-            text-align: center;
-        }
-        h2 {
-            margin-bottom: 20px;
-            color: #0077cc;
-        }
-        input {
-            width: 100%;
-            padding: 12px;
-            margin: 10px 0;
-            border-radius: 8px;
-            border: 1px solid #ddd;
-            outline: none;
-            transition: border 0.3s;
-        }
-        input:focus {
-            border-color: #0077cc;
-        }
-        button {
-            background: #0077cc;
-            color: white;
-            border: none;
-            padding: 12px;
-            width: 100%;
-            border-radius: 8px;
-            cursor: pointer;
-            transition: 0.3s;
-            font-size: 16px;
-        }
-        button:hover {
-            background: #005fa3;
-        }
-        a {
-            display: block;
-            margin-top: 15px;
-            color: #0077cc;
-            text-decoration: none;
-            font-size: 14px;
-        }
-        a:hover {
-            text-decoration: underline;
-        }
-    </style>
+    <title>Registro - SteamGuard</title>
+    <link rel="stylesheet" href="/stylesheets/style.css">
+    <link rel="stylesheet" href="/stylesheets/register.css">
 </head>
 <body>
-<div class="container">
-    <h2>Registro</h2>
-    <form action="/register" method="POST">
-        <input type="text" name="nombre" placeholder="Nombre completo" required>
-        <input type="text" name="usuario" placeholder="Usuario" required>
-        <input type="email" name="email" placeholder="Correo electrónico" required>
-        <input type="password" name="password" placeholder="Contraseña" required>
-        <input type="password" name="confirm_password" placeholder="Confirmar contraseña" required>
-        <button type="submit">Registrarse</button>
-    </form>
-    <a href="/login">¿Ya tienes cuenta? Inicia sesión</a>
-</div>
+<!-- Header minimalista -->
+<header class="auth-header">
+    <nav class="container">
+        <img src="/images/logo1.png" alt="Steam" class="logo-pequeno">
+        <div class="auth-nav">
+            <span>¿Ya tienes cuenta?</span>
+            <a href="/login.html" class="btn btn-secondary">Iniciar Sesión</a>
+        </div>
+    </nav>
+</header>
+
+<!-- Main Content -->
+<main class="auth-main">
+    <div class="auth-container">
+        <div class="auth-card">
+            <!-- Header del formulario -->
+            <div class="auth-header-content">
+                <img src="/images/logo1.png" alt="Steam">
+                <h1>Crear Cuenta</h1>
+                <p>Únete a SafePlay y comienza a gestionar tu tiempo de juego</p>
+            </div>
+
+            <!-- Formulario de registro -->
+            <form class="auth-form" id="registroForm" method="POST" action="/registro">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="nombre">Nombre Completo</label>
+                        <input
+                                type="text"
+                                id="nombre"
+                                name="nombre"
+                                placeholder="Ingresa tu nombre completo"
+                                required
+                        >
+                        <span class="error-message" id="nombre-error"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="usuario">Nombre de Usuario</label>
+                        <input
+                                type="text"
+                                id="usuario"
+                                name="usuario"
+                                placeholder="Elige un nombre de usuario"
+                                required
+                        >
+                        <span class="error-message" id="usuario-error"></span>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="correo">Correo Electrónico</label>
+                        <input
+                                type="email"
+                                id="correo"
+                                name="correo"
+                                placeholder="tu@email.com"
+                                required
+                        >
+                        <span class="error-message" id="correo-error"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="telefono">Teléfono</label>
+                        <input
+                                type="tel"
+                                id="telefono"
+                                name="telefono"
+                                placeholder="+57 123 456 7890"
+                                required
+                        >
+                        <span class="error-message" id="telefono-error"></span>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="cedula">Cédula</label>
+                        <input
+                                type="text"
+                                id="cedula"
+                                name="cedula"
+                                placeholder="Número de cédula"
+                                required
+                        >
+                        <span class="error-message" id="cedula-error"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="rol">Tipo de Usuario</label>
+                        <select name="rol" id="rol" required>
+                            <option value="">Selecciona tu rol</option>
+                            <option value="comprador">🎮 Jugador</option>
+                            <option value="vendedor">👨‍👩‍👧‍👦 Supervisor</option>
+                        </select>
+                        <span class="error-message" id="rol-error"></span>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="password">Contraseña</label>
+                    <div class="password-input">
+                        <input
+                                type="password"
+                                id="password"
+                                name="password"
+                                placeholder="Crea una contraseña segura"
+                                required
+                        >
+                        <button type="button" class="password-toggle" id="togglePassword">
+                            👁️
+                        </button>
+                    </div>
+                    <div class="password-strength" id="passwordStrength">
+                        <div class="strength-bar">
+                            <div class="strength-fill"></div>
+                        </div>
+                        <span class="strength-text">Ingresa una contraseña</span>
+                    </div>
+                    <span class="error-message" id="password-error"></span>
+                </div>
+
+                <div class="form-group">
+                    <label for="confirmPassword">Confirmar Contraseña</label>
+                    <input
+                            type="password"
+                            id="confirmPassword"
+                            name="confirmPassword"
+                            placeholder="Repite tu contraseña"
+                            required
+                    >
+                    <span class="error-message" id="confirmPassword-error"></span>
+                </div>
+
+                <!-- Términos y condiciones -->
+                <div class="form-group checkbox-group">
+                    <label class="checkbox-container">
+                        <input type="checkbox" id="terms" name="terms" required>
+                        <span class="checkmark"></span>
+                        <span class="checkbox-text">
+                                Acepto los <a href="/terminos" target="_blank">términos y condiciones</a>
+                                y la <a href="/privacidad" target="_blank">política de privacidad</a>
+                            </span>
+                    </label>
+                    <span class="error-message" id="terms-error"></span>
+                </div>
+
+                <!-- Botón de envío -->
+                <button type="submit" class="btn btn-primary btn-full" id="submitBtn">
+                    <span class="btn-text">Crear Cuenta</span>
+                    <div class="btn-loader" id="btnLoader">
+                        <div class="spinner"></div>
+                    </div>
+                </button>
+
+                <!-- Mensaje de error general -->
+                <div class="form-message" id="formMessage"></div>
+            </form>
+
+            <!-- Enlaces adicionales -->
+            <div class="auth-footer">
+                <div class="divider">
+                    <span>o</span>
+                </div>
+
+                <div class="social-login">
+                    <button type="button" class="btn btn-social btn-steam" id="steamLogin">
+                        <img src="/images/LogSteam.jpg" alt="Steam">
+                        Registrarse con Steam
+                    </button>
+                </div>
+
+                <div class="auth-links">
+                    <p>¿Ya tienes una cuenta? <a href="/login.html">Iniciar sesión</a></p>
+                    <p><a href="/">Volver al inicio</a></p>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+
+<!-- Scripts -->
+<script src="/javascripts/registro.js"></script>
 </body>
 </html>
