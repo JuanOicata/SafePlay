@@ -3,18 +3,18 @@
   "version": "0.0.0",
   "private": true,
   "type": "module",
+  "main": "app.js",
   "scripts": {
     "start": "node server.js",
     "dev": "nodemon server.js",
-    "steam:test": "node scripts/test-steam-api.js",
-    "main": "app.js",
-    "keywords": [],
-    "author": "",
-    "license": "ISC",
-    "description": "",
-    "devDependencies": {
-      "nodemon": "^3.1.10"
-    }
+    "steam:test": "node scripts/test-steam-api.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "devDependencies": {
+    "nodemon": "^3.1.10"
   },
   "dependencies": {
     "axios": "^1.11.0",
