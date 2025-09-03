@@ -3,9 +3,9 @@
   "version": "1.0.0",
   "type": "module",
   "description": "Sistema de control parental para Steam",
-  "main": "server.js",
+  "main": "bin/www.js",
   "scripts": {
-    "start": "node server.js",
+    "start": "node bin/www.js",
     "dev": "nodemon bin/www",
     "build": "echo 'No build step required'"
   },
