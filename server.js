@@ -9,8 +9,6 @@ import SteamStrategy from 'passport-steam';
 import pkg from "pg";
 import bcrypt from 'bcrypt';
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
 
 // Archivos estáticos
 app.use(express.static(path.join(__dirname, 'src', 'public')));
