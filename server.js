@@ -9,6 +9,11 @@ import SteamStrategy from 'passport-steam';
 import pkg from "pg";
 import bcrypt from 'bcrypt';
 
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+// Archivos estáticos
+app.use(express.static(path.join(__dirname, 'src', 'public')));
 const { Pool } = pkg;
 
 // Cargar variables de entorno
@@ -308,4 +313,12 @@ startServer();
 
 app.get("/test", (req, res) => {
     res.send("🚀 El servidor está vivo y responde correctamente");
+});
+
+app.use('/javascripts', express.static(path.join(__dirname, 'src', 'public', 'javascripts')));
+app.use('/stylesheets', express.static(path.join(__dirname, 'src', 'public', 'stylesheets')));
+app.use('/images', express.static(path.join(__dirname, 'src', 'public', 'images')));
+
+app.get('/test-static', (req, res) => {
+    res.sendFile(path.join(__dirname, 'src', 'public', 'javascripts', 'main.js'));
 });
