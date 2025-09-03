@@ -3,7 +3,8 @@ import path from "path";
 import { fileURLToPath } from "url";
 import dotenv from 'dotenv';
 import session from 'express-session';
-import passport from 'passport';
+import pgSession from 'connect-pg-simple';
+const PgSession = pgSession(session);import passport from 'passport';
 import SteamStrategy from 'passport-steam';
 import pkg from "pg";
 import bcrypt from 'bcrypt';
@@ -73,6 +74,10 @@ app.use(express.urlencoded({ extended: true }));
 
 // Sesiones
 app.use(session({
+    store: new PgSession({
+        pool: pool,
+        tableName: 'session'
+    }),
     secret: process.env.SESSION_SECRET || 'fallback-secret-key',
     resave: false,
     saveUninitialized: false,
