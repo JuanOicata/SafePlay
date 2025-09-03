@@ -305,3 +305,7 @@ const startServer = async () => {
 };
 
 startServer();
+
+app.get("/test", (req, res) => {
+    res.send("🚀 El servidor está vivo y responde correctamente");
+});
