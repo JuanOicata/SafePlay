@@ -1,8 +1,8 @@
 // routes/steam.js - Rutas para la integración con Steam
+import express from 'express';
+import SteamControlador from '../controladores/steamControlador.js';
 
-const express = require('express');
 const router = express.Router();
-const SteamControlador = require('../controladores/steamControlador');
 
 // Instanciar controlador
 const steamController = new SteamControlador();
@@ -210,4 +210,4 @@ router.use((error, req, res, next) => {
     });
 });
 
-module.exports = router;
+export default router;

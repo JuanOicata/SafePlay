@@ -98,6 +98,11 @@ class LoginManager {
         this.checkConnection();
         setInterval(() => this.checkConnection(), 30000); // Verificar cada 30 segundos
     }
+    checkConnection() {
+        console.log("🔌 Verificando conexión con el servidor...");
+        // Aquí luego puedes implementar un ping a tu backend
+        return true; // Por ahora solo simula que la conexión está bien
+    }
 
     setupRememberMe() {
         // Cargar usuario recordado si existe
@@ -259,4 +264,31 @@ class LoginManager {
         });
 
     }
+    // 🚀 Login con Steam
+    async handleSteamLogin() {
+        try {
+            console.log("🔗 Solicitando URL de autenticación de Steam...");
+
+            // Hacer la petición a tu backend para obtener la URL de Steam
+            const response = await fetch('/api/steam/auth-url');
+            const data = await response.json();
+
+            if (data.url) {
+                console.log("🌐 Redirigiendo a Steam:", data.url);
+                window.location.href = data.url; // Redirige a Steam
+            } else {
+                throw new Error("No se recibió URL de autenticación desde el servidor");
+            }
+
+        } catch (error) {
+            console.error("❌ Error iniciando login con Steam:", error);
+
+            alert(`Error iniciando login con Steam: ${error.message || 'Error desconocido'}`);
+        }
+    }
+
 }
+// Iniciar LoginManager cuando el DOM esté listo
+document.addEventListener('DOMContentLoaded', () => {
+    new LoginManager();
+});

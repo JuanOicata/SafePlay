@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard Jugador - SafePlay</title>
+  <link rel="stylesheet" href="/stylesheets/style.css">
+</head>
+<body>
+<!-- Navbar -->
+<nav class="navbar">
+  <div class="navbar-brand">
+    🎮 SafePlay
+  </div>
+  <div class="user-info">
+    <img id="userAvatar" class="user-avatar" src="" alt="Avatar">
+    <span id="userName">Cargando...</span>
+    <button class="btn-logout" onclick="logout()">Cerrar Sesión</button>
+  </div>
+</nav>
+
+<!-- Contenido Principal -->
+<div class="container">
+  <!-- Tarjeta de Bienvenida -->
+  <div class="welcome-card">
+    <h1>¡Bienvenido, <span id="welcomeName">Jugador</span>!</h1>
+    <p>Aquí puedes ver tus estadísticas y juegos de Steam</p>
+  </div>
+
+  <!-- Estadísticas -->
+  <div class="stats-grid">
+    <div class="stat-card">
+      <div class="stat-icon">🎮</div>
+      <div class="stat-value" id="totalGames">0</div>
+      <div class="stat-label">Juegos Totales</div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-icon">⏱️</div>
+      <div class="stat-value" id="totalHours">0h</div>
+      <div class="stat-label">Horas Totales</div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-icon">🏆</div>
+      <div class="stat-value" id="recentlyPlayed">0</div>
+      <div class="stat-label">Jugados Recientemente</div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-icon">🔥</div>
+      <div class="stat-value" id="favoriteGame">-</div>
+      <div class="stat-label">Juego Más Jugado</div>
+    </div>
+  </div>
+
+  <!-- Sección de Juegos -->
+  <div class="games-section">
+    <h2>🎯 Mis Juegos</h2>
+    <div id="gamesContainer">
+      <div class="loading">
+        <div class="spinner"></div>
+        <p>Cargando juegos...</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  // Obtener el steam_id desde la URL
+  const urlParams = new URLSearchParams(window.location.search);
+  const steamId = urlParams.get('steam_id');
+
+  // Variables globales
+  let steamData = null;
+
+  // Función para obtener datos completos del usuario desde la API
+  async function loadUserData() {
+    if (!steamId) {
+      alert('No se encontró Steam ID. Redirigiendo al login...');
+      window.location.href = '/login.html';
+      return;
+    }
+
+    try {
+      const response = await fetch(`/api/steam/summary/${steamId}`);
+      if (!response.ok) throw new Error('No se pudieron obtener los datos');
+
+      steamData = await response.json();
+
+      // Actualizar la UI
+      updateUI(steamData);
+    } catch (error) {
+      console.error('Error cargando datos de Steam:', error);
+      alert('Error al cargar los datos del usuario.');
+    }
+  }
+
+  // Actualizar toda la UI con los datos
+  function updateUI(data) {
+    // Perfil
+    document.getElementById('userName').textContent = data.displayName || 'Jugador';
+    document.getElementById('welcomeName').textContent = data.displayName || 'Jugador';
+    document.getElementById('userAvatar').src = data.avatar || 'https://via.placeholder.com/40';
+
+    // Juegos
+    if (data.games) {
+      displayGames(data.games);
+      updateStatistics(data.games);
+    } else {
+      displayGames([]);
+    }
+  }
+
+  // Mostrar los juegos
+  function displayGames(games) {
+    const container = document.getElementById('gamesContainer');
+
+    if (!games || games.length === 0) {
+      container.innerHTML = `
+        <div class="empty-state">
+          <p>No se encontraron juegos en tu biblioteca</p>
+        </div>`;
+      return;
+    }
+
+    // Ordenar por tiempo jugado
+    games.sort((a, b) => (b.playtime_forever || 0) - (a.playtime_forever || 0));
+
+    const gamesHTML = games.slice(0, 12).map(game => `
+      <div class="game-card">
+        <img class="game-image"
+             src="https://steamcdn-a.akamaihd.net/steam/apps/${game.appid}/header.jpg"
+             onerror="this.src='https://via.placeholder.com/200x120?text=${encodeURIComponent(game.name)}'"
+             alt="${game.name}">
+        <div class="game-info">
+          <div class="game-name" title="${game.name}">${game.name}</div>
+          <div class="game-time">⏱️ ${formatPlaytime(game.playtime_forever)}</div>
+        </div>
+      </div>
+    `).join('');
+
+    container.innerHTML = `<div class="games-grid">${gamesHTML}</div>`;
+  }
+
+  // Actualizar estadísticas
+  function updateStatistics(games) {
+    const totalGames = games.length;
+    const totalMinutes = games.reduce((sum, game) => sum + (game.playtime_forever || 0), 0);
+    const totalHours = Math.round(totalMinutes / 60);
+
+    const favoriteGame = games.reduce((max, game) =>
+            (game.playtime_forever || 0) > (max.playtime_forever || 0) ? game : max, games[0]);
+
+    document.getElementById('totalGames').textContent = totalGames;
+    document.getElementById('totalHours').textContent = `${totalHours.toLocaleString()}h`;
+    document.getElementById('recentlyPlayed').textContent = games.filter(g => g.playtime_forever > 0).length;
+    document.getElementById('favoriteGame').textContent = favoriteGame?.name || '-';
+  }
+
+  // Formatear tiempo
+  function formatPlaytime(minutes) {
+    if (!minutes) return 'Sin jugar';
+    const hours = Math.floor(minutes / 60);
+    return hours < 1 ? `${minutes} min` : `${hours}h`;
+  }
+
+  // Cerrar sesión
+  function logout() {
+    fetch('/api/logout', { method: 'POST' })
+            .then(() => window.location.href = '/login.html')
+            .catch(() => window.location.href = '/login.html');
+  }
+
+  // Inicializar
+  document.addEventListener('DOMContentLoaded', loadUserData);
+</script>
+
+</body>
+</html>

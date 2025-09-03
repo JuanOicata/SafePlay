@@ -9,7 +9,7 @@ import passport from 'passport';
 import SteamStrategy from 'passport-steam';
 import pkg from "pg";
 import bcrypt from 'bcrypt';
-
+import steamRoutes from './routes/steam.js'; // DESCOMENTADO
 const { Pool } = pkg;
 
 // Cargar variables de entorno
@@ -74,7 +74,7 @@ async function initializeDatabase() {
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Archivos estáticos - Ahora sí puede usar app
+// Archivos estáticos
 app.use(express.static(path.join(__dirname, "src", "public")));
 app.use('/javascripts', express.static(path.join(__dirname, 'src', 'public', 'javascripts')));
 app.use('/stylesheets', express.static(path.join(__dirname, 'src', 'public', 'stylesheets')));
@@ -128,6 +128,9 @@ passport.serializeUser((user, done) => {
 passport.deserializeUser((user, done) => {
     done(null, user);
 });
+
+// RUTAS DE STEAM - DESCOMENTADO
+app.use('/api/steam', steamRoutes);
 
 // Rutas básicas
 app.get("/", (req, res) => {
@@ -198,7 +201,7 @@ async function insertJugador(steam_id, nombre_usuario, nombre, steam_avatar) {
         }
 
         const res = await pool.query(
-            `INSERT INTO usuarios (steam_id, nombre_usuario, nombre, rol, steam_avatar) 
+            `INSERT INTO usuarios (steam_id, nombre_usuario, nombre, rol, steam_avatar)
              VALUES ($1, $2, $3, 'jugador', $4) RETURNING id, nombre_usuario, rol`,
             [steam_id, nombre_usuario, nombre, steam_avatar]
         );
@@ -311,6 +314,7 @@ const startServer = async () => {
             console.log(`Servidor iniciado en puerto ${PORT}`);
             console.log(`Entorno: ${process.env.NODE_ENV || 'development'}`);
             console.log(`Steam API: ${process.env.STEAM_API_KEY ? 'Configurada' : 'No configurada'}`);
+            console.log('✅ Rutas de Steam habilitadas');
         });
 
     } catch (error) {
