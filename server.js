@@ -4,19 +4,18 @@ import { fileURLToPath } from "url";
 import dotenv from 'dotenv';
 import session from 'express-session';
 import pgSession from 'connect-pg-simple';
-const PgSession = pgSession(session);import passport from 'passport';
+const PgSession = pgSession(session);
+import passport from 'passport';
 import SteamStrategy from 'passport-steam';
 import pkg from "pg";
 import bcrypt from 'bcrypt';
 
-
-// Archivos estáticos
-app.use(express.static(path.join(__dirname, 'src', 'public')));
 const { Pool } = pkg;
 
 // Cargar variables de entorno
 dotenv.config();
 
+// Inicializar Express PRIMERO
 const app = express();
 const PORT = process.env.PORT || 3000;
 
@@ -24,7 +23,7 @@ const PORT = process.env.PORT || 3000;
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// Configurar base de datos directamente aquí
+// Configurar base de datos
 const pool = new Pool({
     connectionString: process.env.DATABASE_URL,
     ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false,
@@ -75,6 +74,12 @@ async function initializeDatabase() {
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+// Archivos estáticos - Ahora sí puede usar app
+app.use(express.static(path.join(__dirname, "src", "public")));
+app.use('/javascripts', express.static(path.join(__dirname, 'src', 'public', 'javascripts')));
+app.use('/stylesheets', express.static(path.join(__dirname, 'src', 'public', 'stylesheets')));
+app.use('/images', express.static(path.join(__dirname, 'src', 'public', 'images')));
+
 // Sesiones
 app.use(session({
     store: new PgSession({
@@ -124,9 +129,6 @@ passport.deserializeUser((user, done) => {
     done(null, user);
 });
 
-// Archivos estáticos
-app.use(express.static(path.join(__dirname, "src", "public")));
-
 // Rutas básicas
 app.get("/", (req, res) => {
     res.sendFile(path.join(__dirname, "src", "public", "index.html"));
@@ -145,7 +147,17 @@ app.get("/health", (req, res) => {
     res.json({ status: "OK", timestamp: new Date().toISOString() });
 });
 
-// Funciones de base de datos directas
+// Test route
+app.get("/test", (req, res) => {
+    res.send("🚀 El servidor está vivo y responde correctamente");
+});
+
+// Test static files
+app.get('/test-static', (req, res) => {
+    res.sendFile(path.join(__dirname, 'src', 'public', 'javascripts', 'main.js'));
+});
+
+// Funciones de base de datos
 async function checkUserExists(field, value) {
     try {
         const allowedFields = ['nombre_usuario', 'email', 'steam_id', 'cedula'];
@@ -285,7 +297,7 @@ app.post('/registro', async (req, res) => {
     }
 });
 
-// Error handler
+// Error handler - 404
 app.use((req, res) => {
     res.status(404).send('Página no encontrada');
 });
@@ -308,15 +320,3 @@ const startServer = async () => {
 };
 
 startServer();
-
-app.get("/test", (req, res) => {
-    res.send("🚀 El servidor está vivo y responde correctamente");
-});
-
-app.use('/javascripts', express.static(path.join(__dirname, 'src', 'public', 'javascripts')));
-app.use('/stylesheets', express.static(path.join(__dirname, 'src', 'public', 'stylesheets')));
-app.use('/images', express.static(path.join(__dirname, 'src', 'public', 'images')));
-
-app.get('/test-static', (req, res) => {
-    res.sendFile(path.join(__dirname, 'src', 'public', 'javascripts', 'main.js'));
-});
