@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Supervisor - SafePlay</title>
+    <link rel="stylesheet" href="/stylesheets/style.css">
+</head>
+<body>
+<!-- Navbar -->
+<nav class="navbar">
+    <div class="navbar-brand">
+        👨‍👩‍👧‍👦 SafePlay
+    </div>
+    <div class="user-info">
+        <img id="userAvatar" class="user-avatar" src="" alt="Avatar">
+        <span id="userName">Cargando...</span>
+        <button class="btn-logout" onclick="logout()">Cerrar Sesión</button>
+    </div>
+</nav>
+
+<!-- Contenido Principal -->
+<div class="container">
+    <!-- Tarjeta de Bienvenida -->
+    <div class="welcome-card">
+        <h1>¡Bienvenido, <span id="welcomeName">Supervisor</span>!</h1>
+        <p>Aquí puedes gestionar las cuentas de los jugadores y ver sus estadísticas</p>
+    </div>
+
+    <!-- Estadísticas -->
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-icon">🎮</div>
+            <div class="stat-value" id="totalPlayers">0</div>
+            <div class="stat-label">Jugadores Registrados</div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-icon">📊</div>
+            <div class="stat-value" id="totalGames">0</div>
+            <div class="stat-label">Juegos Gestionados</div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-icon">⏱️</div>
+            <div class="stat-value" id="totalHours">0h</div>
+            <div class="stat-label">Horas Jugadas Total</div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-icon">🔥</div>
+            <div class="stat-value" id="activeUsers">0</div>
+            <div class="stat-label">Usuarios Activos</div>
+        </div>
+    </div>
+
+    <!-- Sección de Gestión de Jugadores -->
+    <div class="games-section">
+        <h2>🎯 Gestión de Jugadores</h2>
+        <div id="playersContainer">
+            <div class="loading">
+                <div class="spinner"></div>
+                <p>Cargando jugadores...</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Obtener el supervisor_id desde la URL (simulación de ID del supervisor)
+    const urlParams = new URLSearchParams(window.location.search);
+    const supervisorId = urlParams.get('supervisor_id');
+
+    // Variables globales
+    let supervisorData = null;
+
+    // Función para obtener datos completos del supervisor desde la API
+
+
+    // Actualizar toda la UI con los datos
+    function updateUI(data) {
+        // Perfil
+        document.getElementById('userName').textContent = data.name || 'Supervisor';
+        document.getElementById('welcomeName').textContent = data.name || 'Supervisor';
+        document.getElementById('userAvatar').src = data.avatar || 'https://via.placeholder.com/40';
+
+        // Jugadores
+        if (data.players) {
+            displayPlayers(data.players);
+            updateStatistics(data.players);
+        } else {
+            displayPlayers([]);
+        }
+    }
+
+    // Mostrar los jugadores
+    function displayPlayers(players) {
+        const container = document.getElementById('playersContainer');
+
+        if (!players || players.length === 0) {
+            container.innerHTML = `
+        <div class="empty-state">
+          <p>No se encontraron jugadores registrados</p>
+        </div>`;
+            return;
+        }
+
+        const playersHTML = players.slice(0, 12).map(player => `
+      <div class="player-card">
+        <div class="player-info">
+          <div class="player-name" title="${player.name}">${player.name}</div>
+          <div class="player-email">${player.email}</div>
+          <div class="player-phone">${player.phone}</div>
+        </div>
+      </div>
+    `).join('');
+
+        container.innerHTML = `<div class="players-grid">${playersHTML}</div>`;
+    }
+
+    // Actualizar estadísticas
+    function updateStatistics(players) {
+        const totalPlayers = players.length;
+        const totalGames = players.reduce((sum, player) => sum + (player.games || 0), 0);
+        const totalHours = players.reduce((sum, player) => sum + (player.hours || 0), 0);
+
+        document.getElementById('totalPlayers').textContent = totalPlayers;
+        document.getElementById('totalGames').textContent = totalGames;
+        document.getElementById('totalHours').textContent = `${totalHours}h`;
+        document.getElementById('activeUsers').textContent = players.filter(p => p.active).length;
+    }
+
+    // Cerrar sesión
+    function logout() {
+        fetch('/api/logout', { method: 'POST' })
+            .then(() => window.location.href = '/login.html')
+            .catch(() => window.location.href = '/login.html');
+    }
+
+    // Inicializar
+    document.addEventListener('DOMContentLoaded', loadSupervisorData);
+</script>
+
+</body>
+</html>

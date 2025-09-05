@@ -242,154 +242,62 @@
 
 <style>
     /* Estilos adicionales para el nuevo diseño */
-    .user-type-selector {
-        text-align: center;
-        margin-bottom: 2rem;
-    }
-
-    .user-type-selector h2 {
-        margin-bottom: 2rem;
-        color: #2c3e50;
-        font-size: 1.5rem;
-    }
-
-    .user-type-options {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 1.5rem;
-        margin-bottom: 2rem;
-    }
-
-    .user-type-btn {
-        background: white;
-        border: 2px solid #e0e0e0;
-        border-radius: 12px;
-        padding: 2rem 1.5rem;
-        cursor: pointer;
-        transition: all 0.3s ease;
-        text-align: center;
-        position: relative;
-    }
-
-    .user-type-btn:hover {
-        border-color: #3498db;
-        transform: translateY(-2px);
-        box-shadow: 0 8px 25px rgba(52, 152, 219, 0.15);
-    }
-
-    .user-type-btn.selected {
-        border-color: #3498db;
-        background: #f8fcff;
-    }
-
-    .user-type-icon {
-        font-size: 3rem;
-        margin-bottom: 1rem;
-    }
-
-    .user-type-btn h3 {
-        margin: 0.5rem 0;
-        color: #2c3e50;
-        font-size: 1.2rem;
-    }
-
-    .user-type-btn p {
-        margin: 0;
-        color: #7f8c8d;
-        font-size: 0.9rem;
-    }
-
-    .user-type-badge {
-        background: #3498db;
-        color: white;
-        padding: 0.3rem 0.8rem;
-        border-radius: 20px;
-        font-size: 0.8rem;
-        margin-top: 1rem;
-        display: inline-block;
-    }
-
-    .registro-section {
-        animation: slideIn 0.3s ease;
-    }
-
-    @keyframes slideIn {
-        from { opacity: 0; transform: translateY(20px); }
-        to { opacity: 1; transform: translateY(0); }
-    }
-
-    .steam-register-info, .supervisor-register-info {
-        text-align: center;
-        margin-bottom: 2rem;
-    }
-
-    .steam-register-info h2, .supervisor-register-info h2 {
-        color: #2c3e50;
-        margin-bottom: 1rem;
-    }
-
-    .steam-benefits {
-        text-align: left;
-        margin: 2rem 0;
-        background: #f8f9fa;
-        padding: 1.5rem;
-        border-radius: 8px;
-    }
-
-    .benefit-item {
-        display: flex;
-        align-items: center;
-        margin-bottom: 1rem;
-    }
-
-    .benefit-item:last-child {
-        margin-bottom: 0;
-    }
-
-    .benefit-icon {
-        margin-right: 1rem;
-        font-size: 1.2rem;
-    }
-
-    .btn-steam {
-        background: #171a21;
-        color: white;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        gap: 1rem;
-        padding: 1rem 2rem;
-        border: none;
-        border-radius: 8px;
-        font-size: 1.1rem;
-        font-weight: 600;
-        cursor: pointer;
-        transition: all 0.3s ease;
+    .auth-main {
         width: 100%;
-        margin: 2rem 0;
+        max-width: 900px;
+        margin: 0 auto;
+        padding: 2rem;
     }
 
-    .btn-steam:hover {
-        background: #1e2328;
-        transform: translateY(-2px);
-        box-shadow: 0 8px 25px rgba(23, 26, 33, 0.3);
+    .auth-container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
     }
 
-    .btn-large {
-        padding: 1.2rem 2rem;
-        font-size: 1.2rem;
+    .auth-card {
+        width: 100%;
+        max-width: 800px;
+        background: #fff;
+        padding: 2rem;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        border-radius: 8px;
     }
 
-    .steam-icon {
-        width: 24px;
-        height: 24px;
-        border-radius: 4px;
+    .auth-form {
+        width: 100%;
+        max-width: 700px;
+        margin: 0 auto;
     }
 
-    .steam-note {
-        text-align: center;
-        color: #7f8c8d;
-        margin-top: 1rem;
+    .form-row {
+        display: flex;
+        justify-content: space-between;
+        gap: 1.5rem;
+    }
+
+    .form-group {
+        width: 100%;
+        margin-bottom: 1.5rem;
+    }
+
+    .form-group label {
+        font-weight: bold;
+        margin-bottom: 0.5rem;
+        display: block;
+    }
+
+    .form-group input {
+        width: 100%;
+        padding: 0.8rem;
+        font-size: 1rem;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+    }
+
+    .form-group input:focus {
+        border-color: #3498db;
+        outline: none;
     }
 
     .btn-back {
@@ -408,21 +316,6 @@
     .btn-back:hover {
         background: #f8f9fa;
         border-color: #95a5a6;
-    }
-
-    @media (max-width: 768px) {
-        .user-type-options {
-            grid-template-columns: 1fr;
-            gap: 1rem;
-        }
-
-        .user-type-btn {
-            padding: 1.5rem 1rem;
-        }
-
-        .user-type-icon {
-            font-size: 2.5rem;
-        }
     }
 </style>
 </body>
