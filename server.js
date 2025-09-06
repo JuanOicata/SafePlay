@@ -433,21 +433,25 @@ const startServer = async () => {
         process.exit(1);
     }
 };
+// Ruta de debug - AGREGAR TEMPORALMENTE
 app.get('/debug-files', (req, res) => {
     const fs = require('fs');
     const path = require('path');
 
     try {
-        const publicDir = path.join(process.cwd(), 'public');
-        const files = fs.readdirSync(publicDir);
+        const publicPath = path.join(process.cwd(), 'public');
+        const files = fs.readdirSync(publicPath);
+
         res.json({
-            publicDir,
+            cwd: process.cwd(),
+            publicPath,
             files,
-            dashboardExists: fs.existsSync(path.join(publicDir, 'dashboard-jugador.html'))
+            dashboardExists: fs.existsSync(path.join(publicPath, 'dashboard-jugador.html'))
         });
     } catch (error) {
-        res.json({ error: error.message });
+        res.json({ error: error.message, cwd: process.cwd() });
     }
 });
+
 startServer();
 export default app;
