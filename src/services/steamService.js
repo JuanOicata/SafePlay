@@ -1,213 +1,378 @@
-// routes/steam.js - Rutas para la integración con Steam
-import express from 'express';
-import SteamControlador from '../controladores/steamControlador.js';
+// src/services/steamService.js
+import fetch from 'node-fetch';
 
-const router = express.Router();
+class SteamService {
+    constructor() {
+        this.apiKey = process.env.STEAM_API_KEY;
+        this.baseUrl = 'https://api.steampowered.com';
 
-// Instanciar controlador
-const steamController = new SteamControlador();
-
-// ==========================================
-// RUTAS DE AUTENTICACIÓN
-// ==========================================
-
-/**
- * @route   GET /api/steam/auth-url
- * @desc    Obtener URL de autorización de Steam
- * @access  Public
- */
-router.get('/auth-url', (req, res) => steamController.getAuthUrl(req, res));
-
-/**
- * @route   GET /api/steam/callback
- * @desc    Callback de Steam OpenID
- * @access  Public
- */
-router.get('/callback', (req, res) => steamController.handleCallback(req, res));
-
-// ==========================================
-// RUTAS DE DATOS DE USUARIO
-// ==========================================
-
-/**
- * @route   GET /api/steam/profile/:steamId
- * @desc    Obtener perfil del usuario
- * @access  Private
- */
-router.get('/profile/:steamId', authenticateUser, (req, res) =>
-    steamController.getUserProfile(req, res)
-);
-
-/**
- * @route   GET /api/steam/games/:steamId
- * @desc    Obtener juegos del usuario
- * @access  Private
- * @query   limit, sortBy
- */
-router.get('/games/:steamId', authenticateUser, (req, res) =>
-    steamController.getUserGames(req, res)
-);
-
-/**
- * @route   GET /api/steam/summary/:steamId
- * @desc    Obtener resumen completo del usuario
- * @access  Private
- */
-router.get('/summary/:steamId', authenticateUser, (req, res) =>
-    steamController.getUserSummary(req, res)
-);
-
-// ==========================================
-// RUTAS DE ESTADÍSTICAS DE JUEGOS
-// ==========================================
-
-/**
- * @route   GET /api/steam/stats/:steamId/:appId
- * @desc    Obtener estadísticas de un juego específico
- * @access  Private
- */
-router.get('/stats/:steamId/:appId', authenticateUser, (req, res) =>
-    steamController.getGameStats(req, res)
-);
-
-/**
- * @route   GET /api/steam/achievements/:steamId/:appId
- * @desc    Obtener logros de un juego
- * @access  Private
- */
-router.get('/achievements/:steamId/:appId', authenticateUser, (req, res) =>
-    steamController.getGameAchievements(req, res)
-);
-
-// ==========================================
-// RUTAS DE CONTROL PARENTAL
-// ==========================================
-
-/**
- * @route   GET /api/steam/parental-stats/:steamId
- * @desc    Obtener estadísticas para control parental
- * @access  Private (Solo supervisores o dueño de cuenta)
- */
-router.get('/parental-stats/:steamId', authenticateUser, authorizeParentalAccess, (req, res) =>
-    steamController.getParentalStats(req, res)
-);
-
-// ==========================================
-// RUTAS DE SISTEMA
-// ==========================================
-
-/**
- * @route   GET /api/steam/health
- * @desc    Verificar estado de la API de Steam
- * @access  Public
- */
-router.get('/health', (req, res) => steamController.checkHealth(req, res));
-
-/**
- * @route   POST /api/steam/webhook
- * @desc    Webhook para actualizaciones de Steam
- * @access  Private (Steam only)
- */
-router.post('/webhook', validateWebhook, (req, res) =>
-    steamController.handleWebhook(req, res)
-);
-
-// ==========================================
-// MIDDLEWARES
-// ==========================================
-
-/**
- * Middleware de autenticación
- */
-function authenticateUser(req, res, next) {
-    // Verificar si el usuario está autenticado
-    if (!req.session || !req.session.user) {
-        return res.status(401).json({
-            success: false,
-            message: 'Acceso no autorizado'
-        });
+        if (!this.apiKey) {
+            console.warn('STEAM_API_KEY no está configurada en las variables de entorno');
+        }
     }
 
-    // Añadir información del usuario a la request
-    req.user = req.session.user;
-    next();
+    /**
+     * Realizar petición a la API de Steam con manejo de errores
+     */
+    async makeRequest(endpoint, params = {}) {
+        try {
+            if (!this.apiKey) {
+                throw new Error('Steam API Key no configurada');
+            }
+
+            // Agregar la API key a los parámetros
+            const urlParams = new URLSearchParams({
+                key: this.apiKey,
+                format: 'json',
+                ...params
+            });
+
+            const url = `${this.baseUrl}${endpoint}?${urlParams}`;
+            console.log(`Llamando a Steam API: ${endpoint}`);
+
+            const response = await fetch(url);
+
+            if (!response.ok) {
+                throw new Error(`Steam API respondió con estado ${response.status}`);
+            }
+
+            const data = await response.json();
+            return data;
+
+        } catch (error) {
+            console.error('Error en Steam API:', error.message);
+            throw error;
+        }
+    }
+
+    /**
+     * Obtener información básica del jugador
+     */
+    async getPlayerSummary(steamId) {
+        try {
+            const data = await this.makeRequest('/ISteamUser/GetPlayerSummaries/v0002/', {
+                steamids: steamId
+            });
+
+            if (!data.response || !data.response.players || data.response.players.length === 0) {
+                throw new Error('Jugador no encontrado');
+            }
+
+            const player = data.response.players[0];
+
+            return {
+                steamid: player.steamid,
+                personaname: player.personaname,
+                profileurl: player.profileurl,
+                avatar: player.avatar,
+                avatarmedium: player.avatarmedium,
+                avatarfull: player.avatarfull,
+                personastate: player.personastate,
+                communityvisibilitystate: player.communityvisibilitystate,
+                profilestate: player.profilestate,
+                lastlogoff: player.lastlogoff,
+                commentpermission: player.commentpermission,
+                realname: player.realname,
+                primaryclanid: player.primaryclanid,
+                timecreated: player.timecreated,
+                gameid: player.gameid,
+                gameserverip: player.gameserverip,
+                gameextrainfo: player.gameextrainfo,
+                cityid: player.cityid,
+                loccountrycode: player.loccountrycode,
+                locstatecode: player.locstatecode
+            };
+
+        } catch (error) {
+            console.error('Error obteniendo resumen del jugador:', error);
+            throw error;
+        }
+    }
+
+    /**
+     * Obtener lista de juegos del jugador
+     */
+    async getOwnedGames(steamId, includeAppInfo = true, includeFreeGames = true) {
+        try {
+            const data = await this.makeRequest('/IPlayerService/GetOwnedGames/v0001/', {
+                steamid: steamId,
+                include_appinfo: includeAppInfo ? 1 : 0,
+                include_played_free_games: includeFreeGames ? 1 : 0
+            });
+
+            if (!data.response) {
+                throw new Error('No se pudieron obtener los juegos');
+            }
+
+            const games = data.response.games || [];
+
+            return {
+                game_count: data.response.game_count || 0,
+                games: games.map(game => ({
+                    appid: game.appid,
+                    name: game.name,
+                    playtime_forever: game.playtime_forever || 0,
+                    playtime_windows_forever: game.playtime_windows_forever || 0,
+                    playtime_mac_forever: game.playtime_mac_forever || 0,
+                    playtime_linux_forever: game.playtime_linux_forever || 0,
+                    playtime_2weeks: game.playtime_2weeks || 0,
+                    img_icon_url: game.img_icon_url,
+                    img_logo_url: game.img_logo_url,
+                    has_community_visible_stats: game.has_community_visible_stats
+                }))
+            };
+
+        } catch (error) {
+            console.error('Error obteniendo juegos:', error);
+            throw error;
+        }
+    }
+
+    /**
+     * Obtener juegos jugados recientemente
+     */
+    async getRecentlyPlayedGames(steamId, count = 5) {
+        try {
+            const data = await this.makeRequest('/IPlayerService/GetRecentlyPlayedGames/v0001/', {
+                steamid: steamId,
+                count: count
+            });
+
+            if (!data.response) {
+                return { total_count: 0, games: [] };
+            }
+
+            const games = data.response.games || [];
+
+            return {
+                total_count: data.response.total_count || 0,
+                games: games.map(game => ({
+                    appid: game.appid,
+                    name: game.name,
+                    playtime_2weeks: game.playtime_2weeks || 0,
+                    playtime_forever: game.playtime_forever || 0,
+                    img_icon_url: game.img_icon_url,
+                    img_logo_url: game.img_logo_url
+                }))
+            };
+
+        } catch (error) {
+            console.error('Error obteniendo juegos recientes:', error);
+            throw error;
+        }
+    }
+
+    /**
+     * Obtener resumen completo del usuario (adaptado para tu HTML existente)
+     */
+    async getUserSummary(steamId) {
+        try {
+            const [profile, games, recentGames] = await Promise.all([
+                this.getPlayerSummary(steamId),
+                this.getOwnedGames(steamId),
+                this.getRecentlyPlayedGames(steamId, 3)
+            ]);
+
+            // Calcular estadísticas
+            const totalPlaytime = games.games.reduce((total, game) =>
+                total + (game.playtime_forever || 0), 0
+            );
+
+            // Encontrar el juego más jugado
+            const mostPlayedGame = games.games.reduce((prev, current) =>
+                    (current.playtime_forever > prev.playtime_forever) ? current : prev,
+                { playtime_forever: 0, name: 'Ninguno' }
+            );
+
+            // Formato adaptado a tu HTML existente
+            return {
+                // Para compatibilidad con tu HTML actual
+                displayName: profile.personaname,
+                avatar: profile.avatarfull,
+                games: games.games,
+
+                // Datos adicionales
+                profile,
+                statistics: {
+                    totalGames: games.game_count,
+                    totalPlaytimeMinutes: totalPlaytime,
+                    totalPlaytimeHours: Math.round(totalPlaytime / 60),
+                    mostPlayedGame: {
+                        name: mostPlayedGame.name || 'Ninguno',
+                        playtime: mostPlayedGame.playtime_forever || 0,
+                        playtimeHours: Math.round((mostPlayedGame.playtime_forever || 0) / 60)
+                    }
+                },
+                recentGames: recentGames.games,
+                topGames: games.games
+                    .sort((a, b) => b.playtime_forever - a.playtime_forever)
+                    .slice(0, 5)
+            };
+
+        } catch (error) {
+            console.error('Error obteniendo resumen completo:', error);
+            throw error;
+        }
+    }
+
+    /**
+     * Obtener estadísticas de un juego específico
+     */
+    async getPlayerStatsForGame(steamId, appId) {
+        try {
+            const data = await this.makeRequest('/ISteamUserStats/GetPlayerStatsForGame/v0002/', {
+                steamid: steamId,
+                appid: appId
+            });
+
+            if (!data.response) {
+                throw new Error('No se pudieron obtener las estadísticas');
+            }
+
+            return {
+                steamID: data.response.steamID,
+                gameName: data.response.gameName,
+                stats: data.response.stats || [],
+                achievements: data.response.achievements || []
+            };
+
+        } catch (error) {
+            console.error('Error obteniendo estadísticas del juego:', error);
+            throw error;
+        }
+    }
+
+    /**
+     * Obtener logros de un juego
+     */
+    async getPlayerAchievements(steamId, appId) {
+        try {
+            const data = await this.makeRequest('/ISteamUserStats/GetPlayerAchievements/v0001/', {
+                steamid: steamId,
+                appid: appId,
+                l: 'spanish'
+            });
+
+            if (!data.response) {
+                throw new Error('No se pudieron obtener los logros');
+            }
+
+            return {
+                steamID: data.response.steamID,
+                gameName: data.response.gameName,
+                achievements: data.response.achievements || [],
+                success: data.response.success || false
+            };
+
+        } catch (error) {
+            console.error('Error obteniendo logros:', error);
+            throw error;
+        }
+    }
+
+    /**
+     * Obtener estadísticas para control parental
+     */
+    async getParentalStats(steamId) {
+        try {
+            const [games, recentGames] = await Promise.all([
+                this.getOwnedGames(steamId),
+                this.getRecentlyPlayedGames(steamId, 10)
+            ]);
+
+            // Calcular tiempo jugado en las últimas 2 semanas
+            const recentPlaytime = recentGames.games.reduce((total, game) =>
+                total + (game.playtime_2weeks || 0), 0
+            );
+
+            // Juegos por categoría de tiempo
+            const gamesByPlaytime = {
+                intensive: games.games.filter(game => game.playtime_forever > 6000), // +100 horas
+                moderate: games.games.filter(game => game.playtime_forever > 600 && game.playtime_forever <= 6000), // 10-100 horas
+                casual: games.games.filter(game => game.playtime_forever <= 600) // -10 horas
+            };
+
+            return {
+                totalGames: games.game_count,
+                recentPlaytimeMinutes: recentPlaytime,
+                recentPlaytimeHours: Math.round(recentPlaytime / 60),
+                dailyAverageHours: Math.round((recentPlaytime / 60) / 14 * 100) / 100,
+                gameCategories: {
+                    intensive: gamesByPlaytime.intensive.length,
+                    moderate: gamesByPlaytime.moderate.length,
+                    casual: gamesByPlaytime.casual.length
+                },
+                recentGames: recentGames.games.map(game => ({
+                    name: game.name,
+                    playtime_2weeks_hours: Math.round((game.playtime_2weeks || 0) / 60),
+                    playtime_forever_hours: Math.round((game.playtime_forever || 0) / 60)
+                })),
+                recommendations: this.generateParentalRecommendations(recentPlaytime, games.game_count)
+            };
+
+        } catch (error) {
+            console.error('Error obteniendo estadísticas parentales:', error);
+            throw error;
+        }
+    }
+
+    /**
+     * Generar recomendaciones parentales
+     */
+    generateParentalRecommendations(recentPlaytimeMinutes, totalGames) {
+        const hoursPerDay = (recentPlaytimeMinutes / 60) / 14;
+        const recommendations = [];
+
+        if (hoursPerDay > 4) {
+            recommendations.push({
+                type: 'warning',
+                message: 'Tiempo de juego elevado (>4h/día). Considere establecer límites.'
+            });
+        } else if (hoursPerDay > 2) {
+            recommendations.push({
+                type: 'caution',
+                message: 'Tiempo de juego moderado-alto. Monitorear actividad.'
+            });
+        } else {
+            recommendations.push({
+                type: 'good',
+                message: 'Tiempo de juego dentro de rangos saludables.'
+            });
+        }
+
+        if (totalGames > 100) {
+            recommendations.push({
+                type: 'info',
+                message: 'Gran biblioteca de juegos. Verificar contenido apropiado para la edad.'
+            });
+        }
+
+        return recommendations;
+    }
+
+    /**
+     * Verificar estado de la API de Steam
+     */
+    async checkApiHealth() {
+        try {
+            // Hacemos una petición simple para verificar conectividad
+            const response = await fetch(`${this.baseUrl}/ISteamWebAPIUtil/GetServerInfo/v0001/?key=${this.apiKey}`);
+
+            return {
+                status: response.ok ? 'healthy' : 'unhealthy',
+                responseTime: Date.now(),
+                apiKeyConfigured: !!this.apiKey
+            };
+
+        } catch (error) {
+            console.error('Error verificando salud de Steam API:', error);
+            return {
+                status: 'unhealthy',
+                error: error.message,
+                apiKeyConfigured: !!this.apiKey
+            };
+        }
+    }
 }
 
-/**
- * Middleware para autorizar acceso a datos parentales
- */
-function authorizeParentalAccess(req, res, next) {
-    const { steamId } = req.params;
-    const user = req.user;
-
-    // Verificar si es el dueño de la cuenta o un supervisor
-    const isOwner = user.steamId === steamId;
-    const isSupervisor = user.rol === 'vendedor'; // En tu sistema 'vendedor' = supervisor
-
-    if (!isOwner && !isSupervisor) {
-        return res.status(403).json({
-            success: false,
-            message: 'No tienes permisos para acceder a estos datos'
-        });
-    }
-
-    next();
-}
-
-/**
- * Middleware para validar webhooks de Steam
- */
-function validateWebhook(req, res, next) {
-    // Aquí podrías validar la firma del webhook si Steam la proporciona
-    // Por ahora, simplemente verificamos que venga de una fuente confiable
-
-    const userAgent = req.get('User-Agent');
-    const steamUserAgents = ['Steam', 'Valve'];
-
-    const isValidSource = steamUserAgents.some(agent =>
-        userAgent && userAgent.includes(agent)
-    );
-
-    if (!isValidSource && process.env.NODE_ENV === 'production') {
-        return res.status(403).json({
-            success: false,
-            message: 'Fuente no autorizada'
-        });
-    }
-
-    next();
-}
-
-/**
- * Middleware de manejo de errores para rutas de Steam
- */
-router.use((error, req, res, next) => {
-    console.error('Error en rutas de Steam:', error);
-
-    // Errores específicos de Steam API
-    if (error.message.includes('Steam API')) {
-        return res.status(503).json({
-            success: false,
-            message: 'Servicio de Steam temporalmente no disponible',
-            code: 'STEAM_API_ERROR'
-        });
-    }
-
-    // Error de rate limiting
-    if (error.message.includes('rate limit')) {
-        return res.status(429).json({
-            success: false,
-            message: 'Demasiadas solicitudes. Intenta más tarde.',
-            code: 'RATE_LIMIT'
-        });
-    }
-
-    // Error genérico
-    res.status(500).json({
-        success: false,
-        message: 'Error interno del servidor',
-        code: 'INTERNAL_ERROR'
-    });
-});
-
-export default router;
+export default SteamService;
