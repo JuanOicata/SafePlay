@@ -83,32 +83,17 @@
     }
 
     try {
-      const response = await fetch(`/api/steam/summary/${steamId}`, {
-        method: "GET",
-        credentials: "include", // 🔑 importante para enviar cookies/sesión
-        headers: {
-          "Accept": "application/json"
-        }
-      });
-
-      if (!response.ok) {
-        const errorText = await response.text();
-        throw new Error(`Error HTTP ${response.status}: ${errorText}`);
-      }
+      const response = await fetch(`/api/steam/summary/${steamId}`);
+      if (!response.ok) throw new Error('No se pudieron obtener los datos');
 
       steamData = await response.json();
 
-      if (!steamData || Object.keys(steamData).length === 0) {
-        throw new Error("La API devolvió un objeto vacío");
-      }
-
+      // Actualizar la UI
       updateUI(steamData);
-
     } catch (error) {
-      console.error("❌ Error cargando datos de Steam:", error.message);
-      alert("No se pudieron obtener los datos del usuario. Revisa la consola.");
+      console.error('Error cargando datos de Steam:', error);
+      alert('Error al cargar los datos del usuario.');
     }
-
   }
 
   // Actualizar toda la UI con los datos
