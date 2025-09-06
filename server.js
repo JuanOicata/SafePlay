@@ -246,12 +246,12 @@ app.get("/login.html", (req, res) => {
     res.sendFile(path.join(__dirname,  "public", "login.html"));
 });
 
-app.get("/dasboard-jugador.html", (req, res) => {
-    res.sendFile(path.join(__dirname, "public", "dasboard-jugador.html"));
+app.get("/dashboard-jugador.html", (req, res) => {
+    res.sendFile(path.join(__dirname, "public", "dashboard-jugador.html"));
 });
 
-app.get("/dasboard-supervisor.html", (req, res) => {
-    res.sendFile(path.join(__dirname, "public", "dasboard-supervisor.html"));
+app.get("/dashboard-supervisor.html", (req, res) => {
+    res.sendFile(path.join(__dirname, "public", "dashboard-supervisor.html"));
 });
 
 app.use(express.static('public'));
@@ -446,7 +446,7 @@ app.get('/debug-files', (req, res) => {
             cwd: process.cwd(),
             publicPath,
             files,
-            dashboardExists: fs.existsSync(path.join(publicPath, 'dasboard-jugador.html'))
+            dashboardExists: fs.existsSync(path.join(publicPath, 'dashboard-jugador.html'))
         });
     } catch (error) {
         res.json({ error: error.message, cwd: process.cwd() });
