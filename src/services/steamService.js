@@ -1,389 +1,213 @@
-// services/steamService.js - Servicio para integración con Steam API
+// routes/steam.js - Rutas para la integración con Steam
+import express from 'express';
+import SteamControlador from '../controladores/steamControlador.js';
 
-const axios = require('axios');
-const crypto = require('crypto');
+const router = express.Router();
 
-class SteamService {
-    constructor() {
-        this.apiKey = process.env.STEAM_API_KEY;
-        this.baseUrl = 'https://api.steampowered.com';
-        this.steamOpenIdUrl = 'https://steamcommunity.com/openid/login';
-        this.realm = process.env.APP_URL || 'http://localhost:3000';
-        this.returnUrl = `${this.realm}/api/steam/callback`;
+// Instanciar controlador
+const steamController = new SteamControlador();
 
-        if (!this.apiKey) {
-            console.warn('⚠️  STEAM_API_KEY no encontrada en variables de entorno');
-        }
-    }
+// ==========================================
+// RUTAS DE AUTENTICACIÓN
+// ==========================================
 
-    /**
-     * Generar URL de autorización de Steam OpenID
-     */
-    generateAuthUrl() {
-        const params = new URLSearchParams({
-            'openid.ns': 'http://specs.openid.net/auth/2.0',
-            'openid.mode': 'checkid_setup',
-            'openid.return_to': this.returnUrl,
-            'openid.realm': this.realm,
-            'openid.identity': 'http://specs.openid.net/auth/2.0/identifier_select',
-            'openid.claimed_id': 'http://specs.openid.net/auth/2.0/identifier_select'
+/**
+ * @route   GET /api/steam/auth-url
+ * @desc    Obtener URL de autorización de Steam
+ * @access  Public
+ */
+router.get('/auth-url', (req, res) => steamController.getAuthUrl(req, res));
+
+/**
+ * @route   GET /api/steam/callback
+ * @desc    Callback de Steam OpenID
+ * @access  Public
+ */
+router.get('/callback', (req, res) => steamController.handleCallback(req, res));
+
+// ==========================================
+// RUTAS DE DATOS DE USUARIO
+// ==========================================
+
+/**
+ * @route   GET /api/steam/profile/:steamId
+ * @desc    Obtener perfil del usuario
+ * @access  Private
+ */
+router.get('/profile/:steamId', authenticateUser, (req, res) =>
+    steamController.getUserProfile(req, res)
+);
+
+/**
+ * @route   GET /api/steam/games/:steamId
+ * @desc    Obtener juegos del usuario
+ * @access  Private
+ * @query   limit, sortBy
+ */
+router.get('/games/:steamId', authenticateUser, (req, res) =>
+    steamController.getUserGames(req, res)
+);
+
+/**
+ * @route   GET /api/steam/summary/:steamId
+ * @desc    Obtener resumen completo del usuario
+ * @access  Private
+ */
+router.get('/summary/:steamId', authenticateUser, (req, res) =>
+    steamController.getUserSummary(req, res)
+);
+
+// ==========================================
+// RUTAS DE ESTADÍSTICAS DE JUEGOS
+// ==========================================
+
+/**
+ * @route   GET /api/steam/stats/:steamId/:appId
+ * @desc    Obtener estadísticas de un juego específico
+ * @access  Private
+ */
+router.get('/stats/:steamId/:appId', authenticateUser, (req, res) =>
+    steamController.getGameStats(req, res)
+);
+
+/**
+ * @route   GET /api/steam/achievements/:steamId/:appId
+ * @desc    Obtener logros de un juego
+ * @access  Private
+ */
+router.get('/achievements/:steamId/:appId', authenticateUser, (req, res) =>
+    steamController.getGameAchievements(req, res)
+);
+
+// ==========================================
+// RUTAS DE CONTROL PARENTAL
+// ==========================================
+
+/**
+ * @route   GET /api/steam/parental-stats/:steamId
+ * @desc    Obtener estadísticas para control parental
+ * @access  Private (Solo supervisores o dueño de cuenta)
+ */
+router.get('/parental-stats/:steamId', authenticateUser, authorizeParentalAccess, (req, res) =>
+    steamController.getParentalStats(req, res)
+);
+
+// ==========================================
+// RUTAS DE SISTEMA
+// ==========================================
+
+/**
+ * @route   GET /api/steam/health
+ * @desc    Verificar estado de la API de Steam
+ * @access  Public
+ */
+router.get('/health', (req, res) => steamController.checkHealth(req, res));
+
+/**
+ * @route   POST /api/steam/webhook
+ * @desc    Webhook para actualizaciones de Steam
+ * @access  Private (Steam only)
+ */
+router.post('/webhook', validateWebhook, (req, res) =>
+    steamController.handleWebhook(req, res)
+);
+
+// ==========================================
+// MIDDLEWARES
+// ==========================================
+
+/**
+ * Middleware de autenticación
+ */
+function authenticateUser(req, res, next) {
+    // Verificar si el usuario está autenticado
+    if (!req.session || !req.session.user) {
+        return res.status(401).json({
+            success: false,
+            message: 'Acceso no autorizado'
         });
-
-        return `${this.steamOpenIdUrl}?${params.toString()}`;
     }
 
-    /**
-     * Verificar respuesta de Steam OpenID
-     */
-    async verifyOpenIdResponse(query) {
-        try {
-            const params = new URLSearchParams();
-
-            // Copiar todos los parámetros recibidos
-            for (const [key, value] of Object.entries(query)) {
-                params.append(key, value);
-            }
-
-            // Cambiar el mode a check_authentication
-            params.set('openid.mode', 'check_authentication');
-
-            const response = await axios.post(this.steamOpenIdUrl, params.toString(), {
-                headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded'
-                }
-            });
-
-            if (response.data.includes('is_valid:true')) {
-                // Extraer Steam ID de la identity URL
-                const steamId = this.extractSteamId(query['openid.identity']);
-                return {
-                    success: true,
-                    steamId: steamId
-                };
-            }
-
-            return {
-                success: false,
-                error: 'Verificación de Steam falló'
-            };
-
-        } catch (error) {
-            console.error('Error verificando OpenID:', error);
-            return {
-                success: false,
-                error: 'Error de verificación'
-            };
-        }
-    }
-
-    /**
-     * Extraer Steam ID de la URL de identidad
-     */
-    extractSteamId(identityUrl) {
-        const matches = identityUrl.match(/\/id\/(\d+)/);
-        return matches ? matches[1] : null;
-    }
-
-    /**
-     * Obtener información del perfil del usuario
-     * API: ISteamUser/GetPlayerSummaries/v0002/
-     */
-    async getUserProfile(steamId) {
-        try {
-            if (!this.apiKey) {
-                throw new Error('Steam API key no configurada');
-            }
-
-            const url = `${this.baseUrl}/ISteamUser/GetPlayerSummaries/v0002/`;
-            const response = await axios.get(url, {
-                params: {
-                    key: this.apiKey,
-                    steamids: steamId
-                }
-            });
-
-            const players = response.data.response.players;
-
-            if (players && players.length > 0) {
-                const player = players[0];
-                return {
-                    success: true,
-                    data: {
-                        steamId: player.steamid,
-                        displayName: player.personaname,
-                        profileUrl: player.profileurl,
-                        avatar: player.avatarfull,
-                        realName: player.realname || null,
-                        country: player.loccountrycode || null,
-                        timeCreated: player.timecreated || null,
-                        personaState: player.personastate, // 0=Offline, 1=Online, etc.
-                        communityVisibilityState: player.communityvisibilitystate
-                    }
-                };
-            }
-
-            return {
-                success: false,
-                error: 'Usuario no encontrado'
-            };
-
-        } catch (error) {
-            console.error('Error obteniendo perfil:', error);
-            return {
-                success: false,
-                error: 'Error al obtener datos del perfil'
-            };
-        }
-    }
-
-    /**
-     * Obtener juegos del usuario
-     * API: IPlayerService/GetOwnedGames/v0001/
-     */
-    async getUserGames(steamId) {
-        try {
-            if (!this.apiKey) {
-                throw new Error('Steam API key no configurada');
-            }
-
-            const url = `${this.baseUrl}/IPlayerService/GetOwnedGames/v0001/`;
-            const response = await axios.get(url, {
-                params: {
-                    key: this.apiKey,
-                    steamid: steamId,
-                    format: 'json',
-                    include_appinfo: true,
-                    include_played_free_games: true
-                }
-            });
-
-            const gamesData = response.data.response;
-
-            if (gamesData && gamesData.games) {
-                return {
-                    success: true,
-                    data: {
-                        gameCount: gamesData.game_count,
-                        games: gamesData.games.map(game => ({
-                            appId: game.appid,
-                            name: game.name,
-                            playtimeForever: Math.round(game.playtime_forever / 60 * 100) / 100, // Convertir a horas
-                            playtime2Weeks: game.playtime_2weeks ? Math.round(game.playtime_2weeks / 60 * 100) / 100 : 0,
-                            iconUrl: game.img_icon_url ? `https://media.steampowered.com/steamcommunity/public/images/apps/${game.appid}/${game.img_icon_url}.jpg` : null,
-                            logoUrl: game.img_logo_url ? `https://media.steampowered.com/steamcommunity/public/images/apps/${game.appid}/${game.img_logo_url}.jpg` : null
-                        }))
-                    }
-                };
-            }
-
-            return {
-                success: false,
-                error: 'No se encontraron juegos'
-            };
-
-        } catch (error) {
-            console.error('Error obteniendo juegos:', error);
-            return {
-                success: false,
-                error: 'Error al obtener lista de juegos'
-            };
-        }
-    }
-
-    /**
-     * Obtener estadísticas de un juego específico
-     * API: ISteamUserStats/GetUserStatsForGame/v0002/
-     */
-    async getGameStats(steamId, appId) {
-        try {
-            if (!this.apiKey) {
-                throw new Error('Steam API key no configurada');
-            }
-
-            const url = `${this.baseUrl}/ISteamUserStats/GetUserStatsForGame/v0002/`;
-            const response = await axios.get(url, {
-                params: {
-                    appid: appId,
-                    key: this.apiKey,
-                    steamid: steamId
-                }
-            });
-
-            const statsData = response.data.playerstats;
-
-            if (statsData && statsData.stats) {
-                return {
-                    success: true,
-                    data: {
-                        steamId: statsData.steamID,
-                        gameName: statsData.gameName,
-                        stats: statsData.stats,
-                        achievements: statsData.achievements || []
-                    }
-                };
-            }
-
-            return {
-                success: false,
-                error: 'Estadísticas no disponibles para este juego'
-            };
-
-        } catch (error) {
-            console.error('Error obteniendo estadísticas:', error);
-            return {
-                success: false,
-                error: 'Error al obtener estadísticas del juego'
-            };
-        }
-    }
-
-    /**
-     * Obtener logros del usuario para un juego
-     * API: ISteamUserStats/GetPlayerAchievements/v0001/
-     */
-    async getUserAchievements(steamId, appId) {
-        try {
-            if (!this.apiKey) {
-                throw new Error('Steam API key no configurada');
-            }
-
-            const url = `${this.baseUrl}/ISteamUserStats/GetPlayerAchievements/v0001/`;
-            const response = await axios.get(url, {
-                params: {
-                    appid: appId,
-                    key: this.apiKey,
-                    steamid: steamId,
-                    l: 'spanish' // Idioma
-                }
-            });
-
-            const achievementsData = response.data.playerstats;
-
-            if (achievementsData && achievementsData.achievements) {
-                return {
-                    success: true,
-                    data: {
-                        steamId: achievementsData.steamID,
-                        gameName: achievementsData.gameName,
-                        achievements: achievementsData.achievements.map(achievement => ({
-                            apiName: achievement.apiname,
-                            achieved: achievement.achieved,
-                            unlockTime: achievement.unlocktime,
-                            name: achievement.name,
-                            description: achievement.description
-                        }))
-                    }
-                };
-            }
-
-            return {
-                success: false,
-                error: 'Logros no disponibles'
-            };
-
-        } catch (error) {
-            console.error('Error obteniendo logros:', error);
-            return {
-                success: false,
-                error: 'Error al obtener logros'
-            };
-        }
-    }
-
-    /**
-     * Obtener estadísticas globales de un juego
-     * API: ISteamUserStats/GetGlobalStatsForGame/v0001/
-     */
-    async getGlobalGameStats(appId, statNames) {
-        try {
-            if (!this.apiKey) {
-                throw new Error('Steam API key no configurada');
-            }
-
-            const url = `${this.baseUrl}/ISteamUserStats/GetGlobalStatsForGame/v0001/`;
-            const response = await axios.get(url, {
-                params: {
-                    appid: appId,
-                    count: statNames.length,
-                    'name[0]': statNames[0] // Formato específico de Steam API
-                }
-            });
-
-            return {
-                success: true,
-                data: response.data.response.globalstats
-            };
-
-        } catch (error) {
-            console.error('Error obteniendo estadísticas globales:', error);
-            return {
-                success: false,
-                error: 'Error al obtener estadísticas globales'
-            };
-        }
-    }
-
-    /**
-     * Procesar y formatear datos completos del usuario
-     */
-    async getCompleteUserData(steamId) {
-        try {
-            console.log(`📊 Obteniendo datos completos para Steam ID: ${steamId}`);
-
-            // Obtener perfil y juegos en paralelo
-            const [profileResult, gamesResult] = await Promise.all([
-                this.getUserProfile(steamId),
-                this.getUserGames(steamId)
-            ]);
-
-            if (!profileResult.success) {
-                return profileResult;
-            }
-
-            const userData = {
-                profile: profileResult.data,
-                games: gamesResult.success ? gamesResult.data : { gameCount: 0, games: [] },
-                stats: {
-                    totalGames: gamesResult.success ? gamesResult.data.gameCount : 0,
-                    totalPlaytime: 0,
-                    recentPlaytime: 0,
-                    mostPlayedGame: null
-                }
-            };
-
-            // Calcular estadísticas adicionales
-            if (gamesResult.success && gamesResult.data.games.length > 0) {
-                const games = gamesResult.data.games;
-
-                // Tiempo total y reciente
-                userData.stats.totalPlaytime = games.reduce((total, game) => total + game.playtimeForever, 0);
-                userData.stats.recentPlaytime = games.reduce((total, game) => total + game.playtime2Weeks, 0);
-
-                // Juego más jugado
-                const mostPlayed = games.reduce((prev, current) =>
-                    (prev.playtimeForever > current.playtimeForever) ? prev : current
-                );
-                userData.stats.mostPlayedGame = mostPlayed;
-
-                // Top 5 juegos más jugados
-                userData.stats.topGames = games
-                    .sort((a, b) => b.playtimeForever - a.playtimeForever)
-                    .slice(0, 5);
-            }
-
-            return {
-                success: true,
-                data: userData
-            };
-
-        } catch (error) {
-            console.error('Error obteniendo datos completos:', error);
-            return {
-                success: false,
-                error: 'Error al procesar datos del usuario'
-            };
-        }
-    }
+    // Añadir información del usuario a la request
+    req.user = req.session.user;
+    next();
 }
 
-module.exports = SteamService;
+/**
+ * Middleware para autorizar acceso a datos parentales
+ */
+function authorizeParentalAccess(req, res, next) {
+    const { steamId } = req.params;
+    const user = req.user;
+
+    // Verificar si es el dueño de la cuenta o un supervisor
+    const isOwner = user.steamId === steamId;
+    const isSupervisor = user.rol === 'vendedor'; // En tu sistema 'vendedor' = supervisor
+
+    if (!isOwner && !isSupervisor) {
+        return res.status(403).json({
+            success: false,
+            message: 'No tienes permisos para acceder a estos datos'
+        });
+    }
+
+    next();
+}
+
+/**
+ * Middleware para validar webhooks de Steam
+ */
+function validateWebhook(req, res, next) {
+    // Aquí podrías validar la firma del webhook si Steam la proporciona
+    // Por ahora, simplemente verificamos que venga de una fuente confiable
+
+    const userAgent = req.get('User-Agent');
+    const steamUserAgents = ['Steam', 'Valve'];
+
+    const isValidSource = steamUserAgents.some(agent =>
+        userAgent && userAgent.includes(agent)
+    );
+
+    if (!isValidSource && process.env.NODE_ENV === 'production') {
+        return res.status(403).json({
+            success: false,
+            message: 'Fuente no autorizada'
+        });
+    }
+
+    next();
+}
+
+/**
+ * Middleware de manejo de errores para rutas de Steam
+ */
+router.use((error, req, res, next) => {
+    console.error('Error en rutas de Steam:', error);
+
+    // Errores específicos de Steam API
+    if (error.message.includes('Steam API')) {
+        return res.status(503).json({
+            success: false,
+            message: 'Servicio de Steam temporalmente no disponible',
+            code: 'STEAM_API_ERROR'
+        });
+    }
+
+    // Error de rate limiting
+    if (error.message.includes('rate limit')) {
+        return res.status(429).json({
+            success: false,
+            message: 'Demasiadas solicitudes. Intenta más tarde.',
+            code: 'RATE_LIMIT'
+        });
+    }
+
+    // Error genérico
+    res.status(500).json({
+        success: false,
+        message: 'Error interno del servidor',
+        code: 'INTERNAL_ERROR'
+    });
+});
+
+export default router;
