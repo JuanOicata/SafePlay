@@ -10,6 +10,17 @@ import SteamStrategy from 'passport-steam';
 import pkg from "pg";
 import bcrypt from 'bcryptjs';
 import steamRoutes from './routes/steam.js';
+
+// Importar controladores
+import {
+    loginNormal,
+    registroNormal,
+    getDashboardJugador,
+    getDashboardSupervisor,
+    checkUserExists,
+    insertJugador
+} from './controladores/usuarioControlador.js';
+
 const { Pool } = pkg;
 
 // Cargar variables de entorno
@@ -89,139 +100,15 @@ passport.deserializeUser((user, done) => {
 
 // 🔥 RUTAS - DESPUÉS DE TODOS LOS MIDDLEWARES
 
-// Login de supervisores
-app.post('/login', async (req, res) => {
-    try {
-        console.log('req.body recibido:', req.body); // Para debug
+// Login usando el controlador
+app.post('/login', loginNormal);
 
-        const { usuario, password } = req.body;
+// Registro usando el controlador
+app.post('/registro', registroNormal);
 
-        if (!usuario || !password) {
-            return res.status(400).json({
-                success: false,
-                message: 'Usuario y contraseña son obligatorios'
-            });
-        }
-
-        // Buscar usuario por nombre_usuario o email
-        const result = await pool.query(
-            `SELECT * FROM usuarios
-             WHERE nombre_usuario = $1 OR email = $1`,
-            [usuario]
-        );
-
-        if (result.rows.length === 0) {
-            return res.status(400).json({
-                success: false,
-                message: 'Usuario no encontrado'
-            });
-        }
-
-        const user = result.rows[0];
-
-        // Validar contraseña
-        const match = await bcrypt.compare(password, user.password || '');
-        if (!match) {
-            return res.status(400).json({
-                success: false,
-                message: 'Contraseña incorrecta'
-            });
-        }
-
-        // Actualizar último login
-        await pool.query(
-            `UPDATE usuarios SET ultimo_login = CURRENT_TIMESTAMP WHERE id = $1`,
-            [user.id]
-        );
-
-        // Guardar en sesión
-        req.session.user = {
-            id: user.id,
-            nombre_usuario: user.nombre_usuario,
-            rol: user.rol
-        };
-
-        return res.json({
-            success: true,
-            message: 'Login exitoso',
-            user: {
-                id: user.id,
-                nombre_usuario: user.nombre_usuario,
-                rol: user.rol
-            },
-            redirectUrl: user.rol === 'supervisor'
-                ? '/dashboard-supervisor.html'
-                : '/dashboard-jugador.html'
-        });
-
-    } catch (error) {
-        console.error('❌ Error en login:', error);
-        return res.status(500).json({
-            success: false,
-            message: 'Error interno del servidor'
-        });
-    }
-});
-
-// Registro de supervisores
-app.post('/registro', async (req, res) => {
-    try {
-        const { nombre, usuario, correo, telefono, cedula, rol, password, confirmPassword } = req.body;
-
-        if (!nombre || !usuario || !correo || !telefono || !cedula || !rol || !password) {
-            return res.status(400).json({
-                success: false,
-                message: 'Todos los campos son obligatorios'
-            });
-        }
-
-        if (password !== confirmPassword) {
-            return res.status(400).json({
-                success: false,
-                message: 'Las contraseñas no coinciden'
-            });
-        }
-
-        if (rol !== 'supervisor') {
-            return res.status(400).json({
-                success: false,
-                message: 'Solo se permite registro tradicional para supervisores'
-            });
-        }
-
-        const existingUser = await checkUserExists('nombre_usuario', usuario);
-        if (existingUser) {
-            return res.status(400).json({
-                success: false,
-                message: 'El nombre de usuario ya está en uso'
-            });
-        }
-
-        const existingEmail = await checkUserExists('email', correo);
-        if (existingEmail) {
-            return res.status(400).json({
-                success: false,
-                message: 'El correo ya está registrado'
-            });
-        }
-
-        const hashedPassword = await bcrypt.hash(password, 12);
-        const newUser = await insertSupervisor(nombre, usuario, correo, telefono, cedula, hashedPassword);
-
-        res.json({
-            success: true,
-            message: 'Supervisor registrado exitosamente',
-            redirectUrl: '/login.html'
-        });
-
-    } catch (error) {
-        console.error('Error en registro:', error);
-        res.status(500).json({
-            success: false,
-            message: 'Error interno del servidor'
-        });
-    }
-});
+// API Dashboard
+app.get('/api/dashboard/jugador', getDashboardJugador);
+app.get('/api/dashboard/supervisor', getDashboardSupervisor);
 
 // RUTAS DE STEAM
 app.use('/api/steam', steamRoutes);
@@ -245,7 +132,15 @@ if (process.env.STEAM_API_KEY) {
                     );
                 }
 
-                res.redirect('/dashboard-jugador.html');
+                // Establecer sesión para el usuario de Steam
+                req.session.user = {
+                    steamId: req.user.steam_id,
+                    nombre_usuario: req.user.nombre_usuario,
+                    avatar: req.user.steam_avatar,
+                    rol: 'jugador'
+                };
+
+                res.redirect(`/dashboard-jugador.html?steam_id=${req.user.steam_id}`);
             } catch (error) {
                 console.error('Error Steam callback:', error);
                 res.redirect('/login.html?error=steam-error');
@@ -253,6 +148,16 @@ if (process.env.STEAM_API_KEY) {
         }
     );
 }
+
+// Logout
+app.post('/api/logout', (req, res) => {
+    req.session.destroy((err) => {
+        if (err) {
+            return res.status(500).json({ success: false, message: 'Error al cerrar sesión' });
+        }
+        res.json({ success: true, message: 'Sesión cerrada correctamente' });
+    });
+});
 
 // Rutas básicas
 app.get("/", (req, res) => {
@@ -283,26 +188,6 @@ app.get("/health", (req, res) => {
 // Test route
 app.get("/test", (req, res) => {
     res.send("🚀 El servidor está vivo y responde correctamente");
-});
-
-// Ruta de debug
-app.get('/debug-files', (req, res) => {
-    const fs = require('fs');
-    const path = require('path');
-
-    try {
-        const publicPath = path.join(process.cwd(), 'public');
-        const files = fs.readdirSync(publicPath);
-
-        res.json({
-            cwd: process.cwd(),
-            publicPath,
-            files,
-            dashboardExists: fs.existsSync(path.join(publicPath, 'dashboard-jugador.html'))
-        });
-    } catch (error) {
-        res.json({ error: error.message, cwd: process.cwd() });
-    }
 });
 
 // Error handler - 404
@@ -348,7 +233,7 @@ async function initializeDatabase() {
             SELECT EXISTS (
                 SELECT FROM information_schema.tables
                 WHERE table_schema = 'public'
-                AND table_name = 'session'
+                  AND table_name = 'session'
             );
         `);
 
@@ -374,71 +259,20 @@ async function initializeDatabase() {
     }
 }
 
-async function checkUserExists(field, value) {
-    try {
-        const allowedFields = ['nombre_usuario', 'email', 'steam_id', 'cedula'];
-        if (!allowedFields.includes(field)) {
-            return null;
-        }
-        const res = await pool.query(`SELECT * FROM usuarios WHERE ${field} = $1`, [value]);
-        return res.rows[0] || null;
-    } catch (err) {
-        console.error("Error verificando usuario:", err.message);
-        return null;
-    }
-}
-
-async function insertSupervisor(nombre, nombre_usuario, email, telefono, cedula, password) {
-    try {
-        const res = await pool.query(
-            `INSERT INTO usuarios (nombre, nombre_usuario, email, telefono, cedula, rol, password)
-             VALUES ($1, $2, $3, $4, $5, 'supervisor', $6) RETURNING id, nombre_usuario, email, rol`,
-            [nombre, nombre_usuario, email, telefono, cedula, password]
-        );
-        return res.rows[0];
-    } catch (err) {
-        if (err.code === '23505') {
-            throw new Error('El usuario o email ya existe');
-        }
-        throw err;
-    }
-}
-
-async function insertJugador(steam_id, nombre_usuario, nombre, steam_avatar) {
-    try {
-        const existing = await pool.query('SELECT * FROM usuarios WHERE steam_id = $1', [steam_id]);
-
-        if (existing.rows.length > 0) {
-            await pool.query('UPDATE usuarios SET ultimo_login = CURRENT_TIMESTAMP WHERE steam_id = $1', [steam_id]);
-            return existing.rows[0];
-        }
-
-        const res = await pool.query(
-            `INSERT INTO usuarios (steam_id, nombre_usuario, nombre, rol, steam_avatar)
-             VALUES ($1, $2, $3, 'jugador', $4) RETURNING id, nombre_usuario, rol`,
-            [steam_id, nombre_usuario, nombre, steam_avatar]
-        );
-        return res.rows[0];
-    } catch (err) {
-        console.error("Error insertando jugador:", err.message);
-        throw err;
-    }
-}
-
 // Inicializar servidor
 const startServer = async () => {
     try {
         await initializeDatabase();
 
         app.listen(PORT, () => {
-            console.log(`Servidor iniciado en puerto ${PORT}`);
-            console.log(`Entorno: ${process.env.NODE_ENV || 'development'}`);
-            console.log(`Steam API: ${process.env.STEAM_API_KEY ? 'Configurada' : 'No configurada'}`);
-            console.log('✅ Rutas de Steam habilitadas');
+            console.log(`🚀 Servidor iniciado en puerto ${PORT}`);
+            console.log(`📍 Entorno: ${process.env.NODE_ENV || 'development'}`);
+            console.log(`🎮 Steam API: ${process.env.STEAM_API_KEY ? 'Configurada ✅' : 'No configurada ❌'}`);
+            console.log(`🌐 Servidor corriendo en: http://localhost:${PORT}`);
         });
 
     } catch (error) {
-        console.error('Error iniciando servidor:', error);
+        console.error('❌ Error iniciando servidor:', error);
         process.exit(1);
     }
 };
