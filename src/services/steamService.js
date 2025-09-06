@@ -1,4 +1,4 @@
-// src/services/steamService.js
+// /services/steamService.js
 import fetch from 'node-fetch';
 
 class SteamService {
