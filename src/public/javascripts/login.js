@@ -215,7 +215,10 @@ class LoginManager {
 
                 // Redirigir según el rol del usuario
                 setTimeout(() => {
-                    const redirectUrl = response.user?.rol === 'vendedor' ? '/dashboard-supervisor..html' : '/dashboard-jugador.html';
+                    const redirectUrl = response.user?.rol === 'supervisor'
+                        ? '/dashboard-supervisor.html'
+                        : '/dashboard-jugador.html';
+
                     window.location.href = redirectUrl;
                 }, 1500);
 
@@ -233,37 +236,27 @@ class LoginManager {
     }
 
     async submitLogin(loginData) {
-        // Simulación de envío - reemplazar con tu API real
-        return new Promise((resolve, reject) => {
-            setTimeout(() => {
-                // Simular diferentes respuestas
-                const mockUsers = {
-                    'admin': {password: 'admin123', rol: 'vendedor'},
-                    'jugador1': {password: 'player123', rol: 'comprador'},
-                    'test@email.com': {password: 'test123', rol: 'comprador'}
-                };
+        try {
+            const response = await fetch('/login', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    usuario: loginData.usuario,
+                    password: loginData.password
+                })
+            });
 
-                const user = mockUsers[loginData.usuario];
+            const data = await response.json();
+            return data;
 
-                if (user && user.password === loginData.password) {
-                    resolve({
-                        success: true,
-                        user: {
-                            usuario: loginData.usuario,
-                            rol: user.rol
-                        },
-                        token: 'mock_jwt_token_' + Date.now()
-                    });
-                } else {
-                    resolve({
-                        success: false,
-                        message: 'Usuario o contraseña incorrectos'
-                    });
-                }
-            }, 1500);
-        });
-
+        } catch (error) {
+            console.error('❌ Error en submitLogin:', error);
+            return { success: false, message: 'Error de conexión con el servidor' };
+        }
     }
+
     // 🚀 Login con Steam
     async handleSteamLogin() {
         try {
