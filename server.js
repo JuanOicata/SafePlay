@@ -173,6 +173,7 @@ app.post('/login', async (req, res) => {
 // Middlewares
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+app.use(express.static('public'));
 
 // Archivos estáticos
 app.use(express.static(path.join(__dirname, "public")));
@@ -432,6 +433,21 @@ const startServer = async () => {
         process.exit(1);
     }
 };
+app.get('/debug-files', (req, res) => {
+    const fs = require('fs');
+    const path = require('path');
 
+    try {
+        const publicDir = path.join(process.cwd(), 'public');
+        const files = fs.readdirSync(publicDir);
+        res.json({
+            publicDir,
+            files,
+            dashboardExists: fs.existsSync(path.join(publicDir, 'dashboard-jugador.html'))
+        });
+    } catch (error) {
+        res.json({ error: error.message });
+    }
+});
 startServer();
 export default app;
