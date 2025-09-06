@@ -1,5 +1,5 @@
 // controladores/steamControlador.js
-import SteamService from '..services/steamService.js';
+import SteamService from '../services/steamService.js';
 
 class SteamControlador {
     constructor() {
