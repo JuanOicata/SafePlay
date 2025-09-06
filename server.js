@@ -175,10 +175,10 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 // Archivos estáticos
-app.use(express.static(path.join(__dirname, "src", "public")));
-app.use('/javascripts', express.static(path.join(__dirname, 'src', 'public', 'javascripts')));
-app.use('/stylesheets', express.static(path.join(__dirname, 'src', 'public', 'stylesheets')));
-app.use('/images', express.static(path.join(__dirname, 'src', 'public', 'images')));
+app.use(express.static(path.join(__dirname, "public")));
+app.use('/javascripts', express.static(path.join(__dirname, 'public', 'javascripts')));
+app.use('/stylesheets', express.static(path.join(__dirname, 'public', 'stylesheets')));
+app.use('/images', express.static(path.join(__dirname, 'public', 'images')));
 
 // Sesiones
 app.use(session({
