@@ -245,6 +245,17 @@ app.get("/login.html", (req, res) => {
     res.sendFile(path.join(__dirname, "src", "public", "login.html"));
 });
 
+// Dashboards
+app.get("/dashboard-jugador.html", (req, res) => {
+    res.sendFile(path.join(__dirname, "src", "public", "dashboard-jugador.html"));
+});
+
+app.get("/dashboard-supervisor.html", (req, res) => {
+    res.sendFile(path.join(__dirname, "src", "public", "dashboard-supervisor.html"));
+});
+
+app.use(express.static(path.join(__dirname, "src", "public")));
+
 // Health check
 app.get("/health", (req, res) => {
     res.json({ status: "OK", timestamp: new Date().toISOString() });
