@@ -97,6 +97,7 @@ async function initializeDatabase() {
 
 import { loginUser } from './src/services/db.js'; // o donde esté tu loginUser
 
+// Login de supervisores
 app.post('/login', async (req, res) => {
     try {
         const { usuario, password } = req.body;
@@ -108,14 +109,36 @@ app.post('/login', async (req, res) => {
             });
         }
 
-        const user = await loginUser(usuario, password);
+        // Buscar usuario por nombre_usuario o email
+        const result = await pool.query(
+            `SELECT * FROM usuarios 
+             WHERE nombre_usuario = $1 OR email = $1`,
+            [usuario]
+        );
 
-        if (!user) {
-            return res.status(401).json({
+        if (result.rows.length === 0) {
+            return res.status(400).json({
                 success: false,
-                message: 'Credenciales incorrectas'
+                message: 'Usuario no encontrado'
             });
         }
+
+        const user = result.rows[0];
+
+        // Validar contraseña
+        const match = await bcrypt.compare(password, user.password || '');
+        if (!match) {
+            return res.status(400).json({
+                success: false,
+                message: 'Contraseña incorrecta'
+            });
+        }
+
+        // Actualizar último login
+        await pool.query(
+            `UPDATE usuarios SET ultimo_login = CURRENT_TIMESTAMP WHERE id = $1`,
+            [user.id]
+        );
 
         // Guardar en sesión
         req.session.user = {
@@ -124,20 +147,28 @@ app.post('/login', async (req, res) => {
             rol: user.rol
         };
 
-        res.json({
+        return res.json({
             success: true,
             message: 'Login exitoso',
-            redirectUrl: '/dashboard-supervisor.html'
+            user: {
+                id: user.id,
+                nombre_usuario: user.nombre_usuario,
+                rol: user.rol
+            },
+            redirectUrl: user.rol === 'supervisor'
+                ? '/dashboard-supervisor.html'
+                : '/dashboard-jugador.html'
         });
 
     } catch (error) {
-        console.error('Error en login:', error);
-        res.status(500).json({
+        console.error('❌ Error en login:', error);
+        return res.status(500).json({
             success: false,
             message: 'Error interno del servidor'
         });
     }
 });
+
 
 // Middlewares
 app.use(express.json());

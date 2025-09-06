@@ -200,7 +200,7 @@ class LoginManager {
                 remember: this.fields.remember.checked
             };
 
-            // Enviar datos de login
+            // Enviar datos de login al backend
             const response = await this.submitLogin(loginData);
 
             if (response.success) {
@@ -213,13 +213,9 @@ class LoginManager {
 
                 this.showFormMessage('¡Login exitoso! Redirigiendo...', 'success');
 
-                // Redirigir según el rol del usuario
+                // 🔥 Usar la URL que manda el backend
                 setTimeout(() => {
-                    const redirectUrl = response.user?.rol === 'supervisor'
-                        ? '/dashboard-supervisor.html'
-                        : '/dashboard-jugador.html';
-
-                    window.location.href = redirectUrl;
+                    window.location.href = response.redirectUrl;
                 }, 1500);
 
             } else {
@@ -234,6 +230,7 @@ class LoginManager {
             this.isSubmitting = false;
         }
     }
+
 
     async submitLogin(loginData) {
         try {
@@ -256,6 +253,7 @@ class LoginManager {
             return { success: false, message: 'Error de conexión con el servidor' };
         }
     }
+
 
     // 🚀 Login con Steam
     async handleSteamLogin() {
