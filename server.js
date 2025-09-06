@@ -97,6 +97,17 @@ async function initializeDatabase() {
 
 import { loginUser } from './src/services/db.js'; // o donde esté tu loginUser
 
+// Middlewares
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+app.use(express.static('public'));
+
+// Archivos estáticos
+app.use(express.static(path.join(__dirname, "public")));
+app.use('/javascripts', express.static(path.join(__dirname, 'public', 'javascripts')));
+app.use('/stylesheets', express.static(path.join(__dirname, 'public', 'stylesheets')));
+app.use('/images', express.static(path.join(__dirname, 'public', 'images')));
+
 // Login de supervisores
 app.post('/login', async (req, res) => {
     try {
@@ -168,18 +179,6 @@ app.post('/login', async (req, res) => {
         });
     }
 });
-
-
-// Middlewares
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
-app.use(express.static('public'));
-
-// Archivos estáticos
-app.use(express.static(path.join(__dirname, "public")));
-app.use('/javascripts', express.static(path.join(__dirname, 'public', 'javascripts')));
-app.use('/stylesheets', express.static(path.join(__dirname, 'public', 'stylesheets')));
-app.use('/images', express.static(path.join(__dirname, 'public', 'images')));
 
 // Sesiones
 app.use(session({
