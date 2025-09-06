@@ -234,24 +234,24 @@ app.use('/api/steam', steamRoutes);
 
 // Rutas básicas
 app.get("/", (req, res) => {
-    res.sendFile(path.join(__dirname, "src", "public", "index.html"));
+    res.sendFile(path.join(__dirname,  "public", "index.html"));
 });
 
 app.get("/registro.html", (req, res) => {
-    res.sendFile(path.join(__dirname, "src", "public", "registro.html"));
+    res.sendFile(path.join(__dirname,  "public", "registro.html"));
 });
 
 app.get("/login.html", (req, res) => {
-    res.sendFile(path.join(__dirname, "src", "public", "login.html"));
+    res.sendFile(path.join(__dirname,  "public", "login.html"));
 });
 
 // Dashboards
 app.get("/dashboard-jugador.html", (req, res) => {
-    res.sendFile(path.join(__dirname, "src", "public", "dashboard-jugador.html"));
+    res.sendFile(path.join(__dirname,  "public", "dashboard-jugador.html"));
 });
 
 app.get("/dashboard-supervisor.html", (req, res) => {
-    res.sendFile(path.join(__dirname, "src", "public", "dashboard-supervisor.html"));
+    res.sendFile(path.join(__dirname, "public", "dashboard-supervisor.html"));
 });
 
 app.use(express.static(path.join(__dirname, "public")));
