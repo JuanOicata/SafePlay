@@ -68,7 +68,73 @@ class LoginManager {
             }
         });
     }
+// Agrega esta función dentro de tu clase LoginManager
 
+    setSubmitLoading(isLoading) {
+        const submitButton = this.form.querySelector('button[type="submit"]');
+        const spinner = submitButton?.querySelector('.loading-spinner');
+
+        if (submitButton) {
+            submitButton.disabled = isLoading;
+
+            if (isLoading) {
+                // Cambiar texto y deshabilitar botón
+                submitButton.innerHTML = `
+                <span class="loading-spinner">⏳</span>
+                <span>Iniciando sesión...</span>
+            `;
+                submitButton.classList.add('loading');
+            } else {
+                // Restaurar estado normal
+                submitButton.innerHTML = 'Iniciar Sesión';
+                submitButton.classList.remove('loading');
+            }
+        }
+    }
+
+// También agrega esta función para mostrar mensajes
+    showFormMessage(message, type = 'info') {
+        // Buscar o crear elemento para mostrar mensajes
+        let messageElement = document.getElementById('form-message');
+
+        if (!messageElement) {
+            messageElement = document.createElement('div');
+            messageElement.id = 'form-message';
+            messageElement.className = 'form-message';
+
+            // Insertar antes del formulario
+            this.form.parentNode.insertBefore(messageElement, this.form);
+        }
+
+        // Limpiar clases anteriores
+        messageElement.className = `form-message ${type}`;
+        messageElement.textContent = message;
+        messageElement.style.display = 'block';
+
+        // Auto-ocultar después de 5 segundos si es éxito
+        if (type === 'success') {
+            setTimeout(() => {
+                messageElement.style.display = 'none';
+            }, 5000);
+        }
+    }
+
+// Y esta función para manejar errores de login
+    handleLoginError(error) {
+        let message = 'Error al iniciar sesión';
+
+        if (error.message) {
+            if (error.message.includes('conexión')) {
+                message = 'Error de conexión. Verifica tu internet.';
+            } else if (error.message.includes('credenciales')) {
+                message = 'Usuario o contraseña incorrectos.';
+            } else {
+                message = error.message;
+            }
+        }
+
+        this.showFormMessage(message, 'error');
+    }
     setupPasswordToggle() {
         const toggleBtn = document.getElementById('togglePassword');
         const passwordField = this.fields.password;
