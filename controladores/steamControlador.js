@@ -179,7 +179,7 @@ class SteamControlador {
             });
         }
     }
-
+    
     // Manejar webhook
     handleWebhook(req, res) {
         try {
