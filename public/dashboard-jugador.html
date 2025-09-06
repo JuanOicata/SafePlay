@@ -71,7 +71,6 @@
   const urlParams = new URLSearchParams(window.location.search);
   const steamId = urlParams.get('steam_id');
 
-  // Variables globales
   let steamData = null;
 
   // Función para obtener datos completos del usuario desde la API
@@ -87,8 +86,6 @@
       if (!response.ok) throw new Error('No se pudieron obtener los datos');
 
       steamData = await response.json();
-
-      // Actualizar la UI
       updateUI(steamData);
     } catch (error) {
       console.error('Error cargando datos de Steam:', error);
@@ -96,14 +93,12 @@
     }
   }
 
-  // Actualizar toda la UI con los datos
+  // Actualizar la UI con los datos
   function updateUI(data) {
-    // Perfil
     document.getElementById('userName').textContent = data.displayName || 'Jugador';
     document.getElementById('welcomeName').textContent = data.displayName || 'Jugador';
     document.getElementById('userAvatar').src = data.avatar || 'https://via.placeholder.com/40';
 
-    // Juegos
     if (data.games) {
       displayGames(data.games);
       updateStatistics(data.games);
@@ -112,7 +107,7 @@
     }
   }
 
-  // Mostrar los juegos
+  // Mostrar juegos
   function displayGames(games) {
     const container = document.getElementById('gamesContainer');
 
@@ -143,7 +138,7 @@
     container.innerHTML = `<div class="games-grid">${gamesHTML}</div>`;
   }
 
-  // Actualizar estadísticas
+  // Estadísticas
   function updateStatistics(games) {
     const totalGames = games.length;
     const totalMinutes = games.reduce((sum, game) => sum + (game.playtime_forever || 0), 0);
