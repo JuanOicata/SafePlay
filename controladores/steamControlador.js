@@ -1,10 +1,7 @@
 // controladores/steamControlador.js
-import SteamService from '../services/steamService.js';
+// import SteamService from '../services/steamService.js'; // Comentado por ahora
 
 class SteamControlador {
-    constructor() {
-        this.steamService = new SteamService();
-    }
 
     // Obtener URL de autenticación de Steam
     getAuthUrl(req, res) {
@@ -45,241 +42,140 @@ class SteamControlador {
     }
 
     // Obtener perfil del usuario
-    async getUserProfile(req, res) {
+    getUserProfile(req, res) {
         try {
             const { steamId } = req.params;
 
-            console.log(`Obteniendo perfil para Steam ID: ${steamId}`);
-            const profile = await this.steamService.getPlayerSummary(steamId);
-
+            // TODO: Implementar lógica para obtener perfil desde Steam API
             res.json({
                 success: true,
-                data: profile
+                message: 'Funcionalidad en desarrollo',
+                steamId
             });
-
         } catch (error) {
             console.error('Error obteniendo perfil:', error);
-
-            if (error.message.includes('Steam API Key')) {
-                return res.status(500).json({
-                    success: false,
-                    message: 'Configuración de Steam API incompleta'
-                });
-            }
-
             res.status(500).json({
                 success: false,
-                message: 'Error obteniendo perfil del usuario',
-                error: process.env.NODE_ENV === 'development' ? error.message : undefined
+                message: 'Error obteniendo perfil del usuario'
             });
         }
     }
 
     // Obtener juegos del usuario
-    async getUserGames(req, res) {
+    getUserGames(req, res) {
         try {
             const { steamId } = req.params;
-            const { limit, sortBy } = req.query;
 
-            console.log(`Obteniendo juegos para Steam ID: ${steamId}`);
-            const gamesData = await this.steamService.getOwnedGames(steamId, true, true);
-
-            let games = gamesData.games;
-
-            // Aplicar ordenamiento si se especifica
-            if (sortBy) {
-                switch (sortBy) {
-                    case 'playtime':
-                        games.sort((a, b) => b.playtime_forever - a.playtime_forever);
-                        break;
-                    case 'name':
-                        games.sort((a, b) => (a.name || '').localeCompare(b.name || ''));
-                        break;
-                    case 'recent':
-                        games.sort((a, b) => (b.playtime_2weeks || 0) - (a.playtime_2weeks || 0));
-                        break;
-                }
-            }
-
-            // Aplicar límite si se especifica
-            if (limit && !isNaN(parseInt(limit))) {
-                games = games.slice(0, parseInt(limit));
-            }
-
+            // TODO: Implementar lógica para obtener juegos desde Steam API
             res.json({
                 success: true,
-                data: {
-                    total_count: gamesData.game_count,
-                    returned_count: games.length,
-                    games: games
-                }
+                message: 'Funcionalidad en desarrollo',
+                steamId
             });
-
         } catch (error) {
             console.error('Error obteniendo juegos:', error);
-
-            if (error.message.includes('Steam API Key')) {
-                return res.status(500).json({
-                    success: false,
-                    message: 'Configuración de Steam API incompleta'
-                });
-            }
-
             res.status(500).json({
                 success: false,
-                message: 'Error obteniendo juegos del usuario',
-                error: process.env.NODE_ENV === 'development' ? error.message : undefined
+                message: 'Error obteniendo juegos del usuario'
             });
         }
     }
 
     // Obtener resumen del usuario
-    async getUserSummary(req, res) {
+    getUserSummary(req, res) {
         try {
             const { steamId } = req.params;
 
-            console.log(`Obteniendo resumen completo para Steam ID: ${steamId}`);
-            const summary = await this.steamService.getUserSummary(steamId);
-
+            // TODO: Implementar lógica para obtener resumen desde Steam API
             res.json({
                 success: true,
-                data: summary
+                message: 'Funcionalidad en desarrollo',
+                steamId
             });
-
         } catch (error) {
             console.error('Error obteniendo resumen:', error);
-
-            if (error.message.includes('Steam API Key')) {
-                return res.status(500).json({
-                    success: false,
-                    message: 'Configuración de Steam API incompleta'
-                });
-            }
-
             res.status(500).json({
                 success: false,
-                message: 'Error obteniendo resumen del usuario',
-                error: process.env.NODE_ENV === 'development' ? error.message : undefined
+                message: 'Error obteniendo resumen del usuario'
             });
         }
     }
 
     // Obtener estadísticas de juego
-    async getGameStats(req, res) {
+    getGameStats(req, res) {
         try {
             const { steamId, appId } = req.params;
 
-            console.log(`Obteniendo estadísticas para Steam ID: ${steamId}, App ID: ${appId}`);
-            const stats = await this.steamService.getPlayerStatsForGame(steamId, appId);
-
+            // TODO: Implementar lógica para obtener estadísticas desde Steam API
             res.json({
                 success: true,
-                data: stats
+                message: 'Funcionalidad en desarrollo',
+                steamId,
+                appId
             });
-
         } catch (error) {
             console.error('Error obteniendo estadísticas:', error);
-
-            if (error.message.includes('Steam API Key')) {
-                return res.status(500).json({
-                    success: false,
-                    message: 'Configuración de Steam API incompleta'
-                });
-            }
-
             res.status(500).json({
                 success: false,
-                message: 'Error obteniendo estadísticas del juego',
-                error: process.env.NODE_ENV === 'development' ? error.message : undefined
+                message: 'Error obteniendo estadísticas del juego'
             });
         }
     }
 
     // Obtener logros del juego
-    async getGameAchievements(req, res) {
+    getGameAchievements(req, res) {
         try {
             const { steamId, appId } = req.params;
 
-            console.log(`Obteniendo logros para Steam ID: ${steamId}, App ID: ${appId}`);
-            const achievements = await this.steamService.getPlayerAchievements(steamId, appId);
-
+            // TODO: Implementar lógica para obtener logros desde Steam API
             res.json({
                 success: true,
-                data: achievements
+                message: 'Funcionalidad en desarrollo',
+                steamId,
+                appId
             });
-
         } catch (error) {
             console.error('Error obteniendo logros:', error);
-
-            if (error.message.includes('Steam API Key')) {
-                return res.status(500).json({
-                    success: false,
-                    message: 'Configuración de Steam API incompleta'
-                });
-            }
-
             res.status(500).json({
                 success: false,
-                message: 'Error obteniendo logros del juego',
-                error: process.env.NODE_ENV === 'development' ? error.message : undefined
+                message: 'Error obteniendo logros del juego'
             });
         }
     }
 
     // Obtener estadísticas parentales
-    async getParentalStats(req, res) {
+    getParentalStats(req, res) {
         try {
             const { steamId } = req.params;
 
-            console.log(`Obteniendo estadísticas parentales para Steam ID: ${steamId}`);
-            const parentalStats = await this.steamService.getParentalStats(steamId);
-
+            // TODO: Implementar lógica para estadísticas parentales
             res.json({
                 success: true,
-                data: parentalStats
+                message: 'Funcionalidad en desarrollo',
+                steamId
             });
-
         } catch (error) {
             console.error('Error obteniendo estadísticas parentales:', error);
-
-            if (error.message.includes('Steam API Key')) {
-                return res.status(500).json({
-                    success: false,
-                    message: 'Configuración de Steam API incompleta'
-                });
-            }
-
             res.status(500).json({
                 success: false,
-                message: 'Error obteniendo estadísticas parentales',
-                error: process.env.NODE_ENV === 'development' ? error.message : undefined
+                message: 'Error obteniendo estadísticas parentales'
             });
         }
     }
 
     // Verificar salud de la API
-    async checkHealth(req, res) {
+    checkHealth(req, res) {
         try {
-            const health = await this.steamService.checkApiHealth();
-
-            const statusCode = health.status === 'healthy' ? 200 : 503;
-
-            res.status(statusCode).json({
-                success: health.status === 'healthy',
-                data: {
-                    status: health.status,
-                    timestamp: new Date().toISOString(),
-                    apiKeyConfigured: health.apiKeyConfigured,
-                    ...(health.error && { error: health.error })
-                }
+            res.json({
+                success: true,
+                status: 'Steam API funcionando correctamente',
+                timestamp: new Date().toISOString()
             });
-
         } catch (error) {
             console.error('Error verificando salud:', error);
             res.status(500).json({
                 success: false,
-                message: 'Error verificando estado de la API',
-                error: process.env.NODE_ENV === 'development' ? error.message : undefined
+                message: 'Error verificando estado de la API'
             });
         }
     }
@@ -287,25 +183,16 @@ class SteamControlador {
     // Manejar webhook
     handleWebhook(req, res) {
         try {
-            const { body } = req;
-
-            console.log('Webhook recibido de Steam:', body);
-
-            // Aquí podrías procesar actualizaciones específicas de Steam
-            // Por ejemplo: cambios en el perfil, nuevos juegos, logros, etc.
-
+            // TODO: Implementar lógica para webhooks de Steam
             res.json({
                 success: true,
-                message: 'Webhook procesado correctamente',
-                timestamp: new Date().toISOString()
+                message: 'Webhook procesado correctamente'
             });
-
         } catch (error) {
             console.error('Error procesando webhook:', error);
             res.status(500).json({
                 success: false,
-                message: 'Error procesando webhook',
-                error: process.env.NODE_ENV === 'development' ? error.message : undefined
+                message: 'Error procesando webhook'
             });
         }
     }
