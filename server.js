@@ -95,6 +95,49 @@ async function initializeDatabase() {
     }
 }
 
+import { loginUser } from './src/services/db.js'; // o donde esté tu loginUser
+
+app.post('/login', async (req, res) => {
+    try {
+        const { usuario, password } = req.body;
+
+        if (!usuario || !password) {
+            return res.status(400).json({
+                success: false,
+                message: 'Usuario y contraseña son obligatorios'
+            });
+        }
+
+        const user = await loginUser(usuario, password);
+
+        if (!user) {
+            return res.status(401).json({
+                success: false,
+                message: 'Credenciales incorrectas'
+            });
+        }
+
+        // Guardar en sesión
+        req.session.user = {
+            id: user.id,
+            nombre_usuario: user.nombre_usuario,
+            rol: user.rol
+        };
+
+        res.json({
+            success: true,
+            message: 'Login exitoso',
+            redirectUrl: '/dashboard-supervisor.html'
+        });
+
+    } catch (error) {
+        console.error('Error en login:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Error interno del servidor'
+        });
+    }
+});
 
 // Middlewares
 app.use(express.json());

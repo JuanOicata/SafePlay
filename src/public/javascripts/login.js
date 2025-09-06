@@ -215,7 +215,7 @@ class LoginManager {
 
                 // Redirigir según el rol del usuario
                 setTimeout(() => {
-                    const redirectUrl = response.user?.rol === 'vendedor' ? '/dashboard-supervisor' : '/dashboard-jugador';
+                    const redirectUrl = response.user?.rol === 'vendedor' ? '/dashboard-supervisor..html' : '/dashboard-jugador.html';
                     window.location.href = redirectUrl;
                 }, 1500);
 
