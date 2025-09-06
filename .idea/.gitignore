@@ -11,11 +11,13 @@ node_modules/**/*.babelrc
 node_modules/**/*.editorconfig
 node_modules/**/*.jscsrc
 node_modules/**/*.jshintrc
+package-lock.json
+.env
 .git/
 .gitignore
 README.md
 .env.local
-.env
+/.env
 *.log
 .DS_Store
 Thumbs.db

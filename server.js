@@ -8,7 +8,7 @@ const PgSession = pgSession(session);
 import passport from 'passport';
 import SteamStrategy from 'passport-steam';
 import pkg from "pg";
-import bcrypt from 'bcrypt';
+import bcrypt from 'bcryptjs';
 import steamRoutes from './routes/steam.js'; // DESCOMENTADO
 const { Pool } = pkg;
 
