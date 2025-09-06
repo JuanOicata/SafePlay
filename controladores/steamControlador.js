@@ -1,5 +1,8 @@
 // controladores/steamControlador.js
 import SteamService from '../src/services/steamService.js';
+import res from "express/lib/response.js";
+import router from "../routes/steam.js";
+import req from "express/lib/request.js";
 
 class SteamControlador {
     constructor() {
@@ -514,103 +517,4 @@ class SteamControlador {
     }
 }
 
-// Añade este método a tu SteamControlador
-
-async debugSteamApi(req, res) {
-    try {
-        const { steamId } = req.params || {};
-        const testSteamId = steamId || '76561197960435530'; // Steam ID público de prueba
-
-        console.log('=== STEAM API DEBUG ===');
-        console.log('Timestamp:', new Date().toISOString());
-        console.log('Steam ID a probar:', testSteamId);
-        console.log('API Key configurada:', !!process.env.STEAM_API_KEY);
-        console.log('Longitud API Key:', process.env.STEAM_API_KEY?.length);
-        console.log('NODE_ENV:', process.env.NODE_ENV);
-
-        // Test 1: Health check básico
-        let healthCheck;
-        try {
-            healthCheck = await this.steamService.checkApiHealth();
-            console.log('Health check resultado:', healthCheck);
-        } catch (error) {
-            healthCheck = { status: 'error', error: error.message };
-            console.log('Health check falló:', error.message);
-        }
-
-        // Test 2: Obtener perfil
-        let profileTest;
-        try {
-            const profile = await this.steamService.getPlayerSummary(testSteamId);
-            profileTest = {
-                status: 'success',
-                playerName: profile?.personaname,
-                steamId: profile?.steamid,
-                visibility: profile?.communityvisibilitystate
-            };
-            console.log('Perfil obtenido exitosamente:', profile?.personaname);
-        } catch (error) {
-            profileTest = { status: 'error', error: error.message };
-            console.log('Error obteniendo perfil:', error.message);
-        }
-
-        // Test 3: Probar Steam ID específico si es diferente
-        let specificTest = null;
-        if (steamId && steamId !== '76561197960435530') {
-            try {
-                const specificProfile = await this.steamService.getPlayerSummary(steamId);
-                specificTest = {
-                    status: 'success',
-                    playerName: specificProfile?.personaname,
-                    steamId: specificProfile?.steamid,
-                    visibility: specificProfile?.communityvisibilitystate
-                };
-                console.log('Steam ID específico funciona:', specificProfile?.personaname);
-            } catch (error) {
-                specificTest = { status: 'error', error: error.message };
-                console.log('Error con Steam ID específico:', error.message);
-            }
-        }
-
-        // Resultado del debug
-        const debugResult = {
-            timestamp: new Date().toISOString(),
-            environment: {
-                nodeEnv: process.env.NODE_ENV,
-                apiKeyConfigured: !!process.env.STEAM_API_KEY,
-                apiKeyLength: process.env.STEAM_API_KEY?.length,
-                appUrl: process.env.APP_URL
-            },
-            tests: {
-                healthCheck,
-                profileTest,
-                specificTest
-            },
-            steamIds: {
-                tested: testSteamId,
-                specific: steamId || null
-            }
-        };
-
-        console.log('=== DEBUG COMPLETADO ===');
-
-        res.json({
-            success: true,
-            message: 'Debug completado - revisa los logs del servidor',
-            debug: debugResult
-        });
-
-    } catch (error) {
-        console.error('Error en debug endpoint:', error);
-        res.status(500).json({
-            success: false,
-            message: 'Error ejecutando debug',
-            error: error.message,
-            timestamp: new Date().toISOString()
-        });
-    }
-}
-
-// Y añade esta ruta en tu router de Steam:
-// router.get('/debug/:steamId?', steamControlador.debugSteamApi.bind(steamControlador));
 export default SteamControlador;
