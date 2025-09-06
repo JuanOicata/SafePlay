@@ -1,5 +1,5 @@
 // controladores/steamControlador.js
-import SteamService from '../src/services/steamService.js';
+import SteamService from '..services/steamService.js';
 
 class SteamControlador {
     constructor() {
@@ -47,9 +47,30 @@ class SteamControlador {
     // Obtener perfil del usuario
     async getUserProfile(req, res) {
         try {
-            const { steamId } = req.params;
+            let steamId = req.params.steamId;
+
+            // Si no hay steamId en params, intentar obtenerlo de diferentes fuentes
+            if (!steamId) {
+                steamId = req.query.steam_id || req.user?.steamId || req.session?.steamId;
+            }
+
+            if (!steamId) {
+                return res.status(400).json({
+                    success: false,
+                    message: 'Steam ID requerido'
+                });
+            }
 
             console.log(`Obteniendo perfil para Steam ID: ${steamId}`);
+
+            // Verificar que el Steam ID tenga el formato correcto
+            if (!/^\d{17}$/.test(steamId)) {
+                return res.status(400).json({
+                    success: false,
+                    message: 'Formato de Steam ID inválido'
+                });
+            }
+
             const profile = await this.steamService.getPlayerSummary(steamId);
 
             res.json({
@@ -67,6 +88,13 @@ class SteamControlador {
                 });
             }
 
+            if (error.message.includes('403') || error.message.includes('Forbidden')) {
+                return res.status(403).json({
+                    success: false,
+                    message: 'Perfil privado o no disponible'
+                });
+            }
+
             res.status(500).json({
                 success: false,
                 message: 'Error obteniendo perfil del usuario',
@@ -78,10 +106,31 @@ class SteamControlador {
     // Obtener juegos del usuario
     async getUserGames(req, res) {
         try {
-            const { steamId } = req.params;
+            let steamId = req.params.steamId;
+
+            if (!steamId) {
+                steamId = req.query.steam_id || req.user?.steamId || req.session?.steamId;
+            }
+
+            if (!steamId) {
+                return res.status(400).json({
+                    success: false,
+                    message: 'Steam ID requerido'
+                });
+            }
+
             const { limit, sortBy } = req.query;
 
             console.log(`Obteniendo juegos para Steam ID: ${steamId}`);
+
+            // Verificar formato del Steam ID
+            if (!/^\d{17}$/.test(steamId)) {
+                return res.status(400).json({
+                    success: false,
+                    message: 'Formato de Steam ID inválido'
+                });
+            }
+
             const gamesData = await this.steamService.getOwnedGames(steamId, true, true);
 
             let games = gamesData.games;
@@ -125,6 +174,13 @@ class SteamControlador {
                 });
             }
 
+            if (error.message.includes('403') || error.message.includes('Forbidden')) {
+                return res.status(403).json({
+                    success: false,
+                    message: 'Lista de juegos privada o no disponible'
+                });
+            }
+
             res.status(500).json({
                 success: false,
                 message: 'Error obteniendo juegos del usuario',
@@ -136,9 +192,29 @@ class SteamControlador {
     // Obtener resumen del usuario
     async getUserSummary(req, res) {
         try {
-            const { steamId } = req.params;
+            let steamId = req.params.steamId;
+
+            if (!steamId) {
+                steamId = req.query.steam_id || req.user?.steamId || req.session?.steamId;
+            }
+
+            if (!steamId) {
+                return res.status(400).json({
+                    success: false,
+                    message: 'Steam ID requerido'
+                });
+            }
 
             console.log(`Obteniendo resumen completo para Steam ID: ${steamId}`);
+
+            // Verificar formato del Steam ID
+            if (!/^\d{17}$/.test(steamId)) {
+                return res.status(400).json({
+                    success: false,
+                    message: 'Formato de Steam ID inválido'
+                });
+            }
+
             const summary = await this.steamService.getUserSummary(steamId);
 
             res.json({
@@ -156,6 +232,13 @@ class SteamControlador {
                 });
             }
 
+            if (error.message.includes('403') || error.message.includes('Forbidden')) {
+                return res.status(403).json({
+                    success: false,
+                    message: 'Datos del usuario no disponibles (perfil privado)'
+                });
+            }
+
             res.status(500).json({
                 success: false,
                 message: 'Error obteniendo resumen del usuario',
@@ -167,9 +250,30 @@ class SteamControlador {
     // Obtener estadísticas de juego
     async getGameStats(req, res) {
         try {
-            const { steamId, appId } = req.params;
+            let steamId = req.params.steamId;
+            const { appId } = req.params;
+
+            if (!steamId) {
+                steamId = req.query.steam_id || req.user?.steamId || req.session?.steamId;
+            }
+
+            if (!steamId || !appId) {
+                return res.status(400).json({
+                    success: false,
+                    message: 'Steam ID y App ID requeridos'
+                });
+            }
 
             console.log(`Obteniendo estadísticas para Steam ID: ${steamId}, App ID: ${appId}`);
+
+            // Verificar formato del Steam ID
+            if (!/^\d{17}$/.test(steamId)) {
+                return res.status(400).json({
+                    success: false,
+                    message: 'Formato de Steam ID inválido'
+                });
+            }
+
             const stats = await this.steamService.getPlayerStatsForGame(steamId, appId);
 
             res.json({
@@ -187,6 +291,13 @@ class SteamControlador {
                 });
             }
 
+            if (error.message.includes('403') || error.message.includes('Forbidden')) {
+                return res.status(403).json({
+                    success: false,
+                    message: 'Estadísticas no disponibles (perfil privado)'
+                });
+            }
+
             res.status(500).json({
                 success: false,
                 message: 'Error obteniendo estadísticas del juego',
@@ -198,9 +309,30 @@ class SteamControlador {
     // Obtener logros del juego
     async getGameAchievements(req, res) {
         try {
-            const { steamId, appId } = req.params;
+            let steamId = req.params.steamId;
+            const { appId } = req.params;
+
+            if (!steamId) {
+                steamId = req.query.steam_id || req.user?.steamId || req.session?.steamId;
+            }
+
+            if (!steamId || !appId) {
+                return res.status(400).json({
+                    success: false,
+                    message: 'Steam ID y App ID requeridos'
+                });
+            }
 
             console.log(`Obteniendo logros para Steam ID: ${steamId}, App ID: ${appId}`);
+
+            // Verificar formato del Steam ID
+            if (!/^\d{17}$/.test(steamId)) {
+                return res.status(400).json({
+                    success: false,
+                    message: 'Formato de Steam ID inválido'
+                });
+            }
+
             const achievements = await this.steamService.getPlayerAchievements(steamId, appId);
 
             res.json({
@@ -218,6 +350,13 @@ class SteamControlador {
                 });
             }
 
+            if (error.message.includes('403') || error.message.includes('Forbidden')) {
+                return res.status(403).json({
+                    success: false,
+                    message: 'Logros no disponibles (perfil privado)'
+                });
+            }
+
             res.status(500).json({
                 success: false,
                 message: 'Error obteniendo logros del juego',
@@ -229,9 +368,29 @@ class SteamControlador {
     // Obtener estadísticas parentales
     async getParentalStats(req, res) {
         try {
-            const { steamId } = req.params;
+            let steamId = req.params.steamId;
+
+            if (!steamId) {
+                steamId = req.query.steam_id || req.user?.steamId || req.session?.steamId;
+            }
+
+            if (!steamId) {
+                return res.status(400).json({
+                    success: false,
+                    message: 'Steam ID requerido'
+                });
+            }
 
             console.log(`Obteniendo estadísticas parentales para Steam ID: ${steamId}`);
+
+            // Verificar formato del Steam ID
+            if (!/^\d{17}$/.test(steamId)) {
+                return res.status(400).json({
+                    success: false,
+                    message: 'Formato de Steam ID inválido'
+                });
+            }
+
             const parentalStats = await this.steamService.getParentalStats(steamId);
 
             res.json({
@@ -246,6 +405,13 @@ class SteamControlador {
                 return res.status(500).json({
                     success: false,
                     message: 'Configuración de Steam API incompleta'
+                });
+            }
+
+            if (error.message.includes('403') || error.message.includes('Forbidden')) {
+                return res.status(403).json({
+                    success: false,
+                    message: 'Datos no disponibles (perfil privado)'
                 });
             }
 
@@ -306,6 +472,43 @@ class SteamControlador {
                 success: false,
                 message: 'Error procesando webhook',
                 error: process.env.NODE_ENV === 'development' ? error.message : undefined
+            });
+        }
+    }
+
+    // Método para validar Steam ID desde URL
+    validateSteamId(req, res) {
+        try {
+            const steamId = req.params.steamId || req.query.steam_id;
+
+            if (!steamId) {
+                return res.status(400).json({
+                    success: false,
+                    message: 'Steam ID requerido'
+                });
+            }
+
+            // Validar formato del Steam ID (debe ser un número de 17 dígitos)
+            if (!/^\d{17}$/.test(steamId)) {
+                return res.status(400).json({
+                    success: false,
+                    message: 'Formato de Steam ID inválido. Debe ser un número de 17 dígitos.'
+                });
+            }
+
+            res.json({
+                success: true,
+                data: {
+                    steamId: steamId,
+                    isValid: true
+                }
+            });
+
+        } catch (error) {
+            console.error('Error validando Steam ID:', error);
+            res.status(500).json({
+                success: false,
+                message: 'Error validando Steam ID'
             });
         }
     }
