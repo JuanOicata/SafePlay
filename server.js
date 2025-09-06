@@ -30,45 +30,71 @@ const pool = new Pool({
 });
 
 // Crear tabla si no existe
+// Crear tablas si no existen
 async function initializeDatabase() {
     try {
-        const checkTable = await pool.query(`
+        // Tabla usuarios
+        const checkUsuarios = await pool.query(`
             SELECT EXISTS (
-                SELECT FROM information_schema.tables 
-                WHERE table_schema = 'public' 
-                AND table_name = 'usuarios'
+                SELECT FROM information_schema.tables
+                WHERE table_schema = 'public'
+                  AND table_name = 'usuarios'
             );
         `);
 
-        if (!checkTable.rows[0].exists) {
+        if (!checkUsuarios.rows[0].exists) {
             await pool.query(`
                 CREATE TABLE usuarios (
-                    id SERIAL PRIMARY KEY,
-                    nombre VARCHAR(100),
-                    nombre_usuario VARCHAR(50) UNIQUE,
-                    email VARCHAR(100) UNIQUE,
-                    telefono VARCHAR(15),
-                    cedula VARCHAR(20),
-                    rol VARCHAR(20) NOT NULL CHECK (rol IN ('jugador', 'supervisor')),
-                    password VARCHAR(255),
-                    steam_id VARCHAR(50) UNIQUE,
-                    steam_avatar TEXT,
-                    activo BOOLEAN DEFAULT true,
-                    ultimo_login TIMESTAMP,
-                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                                          id SERIAL PRIMARY KEY,
+                                          nombre VARCHAR(100),
+                                          nombre_usuario VARCHAR(50) UNIQUE,
+                                          email VARCHAR(100) UNIQUE,
+                                          telefono VARCHAR(15),
+                                          cedula VARCHAR(20),
+                                          rol VARCHAR(20) NOT NULL CHECK (rol IN ('jugador', 'supervisor')),
+                                          password VARCHAR(255),
+                                          steam_id VARCHAR(50) UNIQUE,
+                                          steam_avatar TEXT,
+                                          activo BOOLEAN DEFAULT true,
+                                          ultimo_login TIMESTAMP,
+                                          created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
                 )
             `);
-            console.log("Tabla usuarios creada");
+            console.log("✅ Tabla usuarios creada");
+        }
+
+        // Tabla session
+        const checkSession = await pool.query(`
+            SELECT EXISTS (
+                SELECT FROM information_schema.tables
+                WHERE table_schema = 'public'
+                AND table_name = 'session'
+            );
+        `);
+
+        if (!checkSession.rows[0].exists) {
+            await pool.query(`
+                CREATE TABLE "session" (
+                    "sid" varchar NOT NULL COLLATE "default",
+                    "sess" json NOT NULL,
+                    "expire" timestamp(6) NOT NULL,
+                    CONSTRAINT "session_pkey" PRIMARY KEY ("sid")
+                )
+            `);
+
+            await pool.query(`CREATE INDEX "IDX_session_expire" ON "session" ("expire")`);
+
+            console.log("✅ Tabla session creada");
         }
 
         // Test connection
-        await pool.query('SELECT 1');
-        console.log("Conexión DB establecida");
-
+        await pool.query("SELECT 1");
+        console.log("✅ Conexión DB establecida");
     } catch (err) {
-        console.error("Error DB:", err.message);
+        console.error("❌ Error DB:", err.message);
     }
 }
+
 
 // Middlewares
 app.use(express.json());

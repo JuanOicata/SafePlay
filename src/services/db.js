@@ -7,11 +7,11 @@ export const pool = new Pool({
     ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false,
 });
 
-// Función para crear tabla (solo ejecutar una vez)
-export async function createTable() {
+// Función para crear tablas necesarias (usuarios + session)
+export async function createTables() {
     try {
-        // Verificar si la tabla existe
-        const checkTable = await pool.query(`
+        // Verificar tabla usuarios
+        const checkUsuarios = await pool.query(`
             SELECT EXISTS (
                 SELECT FROM information_schema.tables
                 WHERE table_schema = 'public'
@@ -19,8 +19,7 @@ export async function createTable() {
             );
         `);
 
-        if (!checkTable.rows[0].exists) {
-            // Crear tabla solo si no existe
+        if (!checkUsuarios.rows[0].exists) {
             await pool.query(`
                 CREATE TABLE usuarios (
                                           id SERIAL PRIMARY KEY,
@@ -45,15 +44,41 @@ export async function createTable() {
             console.log("✅ Tabla usuarios ya existe");
         }
 
-        // Probar la conexión
-        await pool.query('SELECT 1');
-        console.log("✅ Conexión a la base de datos establecida");
+        // Verificar tabla session
+        const checkSession = await pool.query(`
+            SELECT EXISTS (
+                SELECT FROM information_schema.tables
+                WHERE table_schema = 'public'
+                  AND table_name = 'session'
+            );
+        `);
 
+        if (!checkSession.rows[0].exists) {
+            await pool.query(`
+                CREATE TABLE "session" (
+                    "sid" varchar NOT NULL COLLATE "default",
+                    "sess" json NOT NULL,
+                    "expire" timestamp(6) NOT NULL,
+                    CONSTRAINT "session_pkey" PRIMARY KEY ("sid")
+                )
+            `);
+
+            await pool.query(`CREATE INDEX "IDX_session_expire" ON "session" ("expire")`);
+
+            console.log("✅ Tabla session creada exitosamente");
+        } else {
+            console.log("✅ Tabla session ya existe");
+        }
+
+        // Probar conexión
+        await pool.query("SELECT 1");
+        console.log("✅ Conexión a la base de datos establecida");
     } catch (err) {
         console.error("❌ Error en la base de datos:", err.message);
         throw err;
     }
 }
+
 
 // Inserción para usuario supervisor (registro tradicional)
 export async function insertSupervisor(nombre, nombre_usuario, email, telefono, cedula, password) {
@@ -151,11 +176,13 @@ export async function getUserById(id) {
 // Función para login tradicional
 export async function loginUser(nombre_usuario, password) {
     try {
-        const bcrypt = await import('bcrypt');
+        // Importar bcryptjs dinámicamente
+        const bcryptModule = await import("bcryptjs");
+        const bcrypt = bcryptModule.default;
 
         const res = await pool.query(
-            'SELECT * FROM usuarios WHERE nombre_usuario = $1 AND rol = $2',
-            [nombre_usuario, 'supervisor']
+            "SELECT * FROM usuarios WHERE nombre_usuario = $1 AND rol = $2",
+            [nombre_usuario, "supervisor"]
         );
 
         if (res.rows.length === 0) {
@@ -168,7 +195,7 @@ export async function loginUser(nombre_usuario, password) {
         if (validPassword) {
             // Actualizar último login
             await pool.query(
-                'UPDATE usuarios SET ultimo_login = CURRENT_TIMESTAMP WHERE id = $1',
+                "UPDATE usuarios SET ultimo_login = CURRENT_TIMESTAMP WHERE id = $1",
                 [user.id]
             );
             console.log("✅ Login exitoso para:", nombre_usuario);
@@ -182,7 +209,7 @@ export async function loginUser(nombre_usuario, password) {
     }
 }
 
-// Inicializar tabla al importar el módulo
-createTable().catch(err => {
+
+createTables().catch(err => {
     console.error("❌ Error fatal en inicialización de DB:", err.message);
 });
