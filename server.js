@@ -12,6 +12,27 @@ import bcrypt from 'bcryptjs';
 import steamRoutes from './routes/steam.js';
 const { Pool } = pkg;
 
+
+// test-env.js (en la raíz)
+import 'dotenv/config';
+console.log('STEAM_API_KEY:', process.env.STEAM_API_KEY);
+console.log('DB_HOST:', process.env.DB_HOST);
+
+// En steamService.js
+import axios from 'axios';
+import https from 'https';
+
+// Solo para desarrollo local
+const httpsAgent = process.env.NODE_ENV !== 'production'
+    ? new https.Agent({ rejectUnauthorized: false })
+    : undefined;
+
+const axiosInstance = axios.create({
+    httpsAgent,
+    timeout: 10000
+});
+
+// Usa axiosInstance en lugar de axios para las llamadas a Steam
 // Cargar variables de entorno
 dotenv.config();
 
