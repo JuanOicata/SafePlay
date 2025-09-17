@@ -80,7 +80,7 @@ router.get('/achievements/:steamId/:appId', authenticateUser, (req, res) =>
 );
 
 // ==========================================
-// RUTAS DE CONTROL PARENTAL
+// RUTAS CONTROL PARENTAL
 // ==========================================
 
 /**
